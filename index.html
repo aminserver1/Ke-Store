@@ -35,7 +35,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -54,10 +53,9 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Firebase Config (Fixed authDomain) ---
+        // --- Firebase Config (Only Database needed now) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDirc0CpBTWr5gxtZQv4ASZv8VRPP2QT90",
-            authDomain: "kurdtoolserver.firebaseapp.com", // <-- ئەمە کێشەکە بوو کە چارەسەر کرا
             databaseURL: "https://kurdtoolserver-default-rtdb.firebaseio.com/",
             projectId: "kurdtoolserver",
             storageBucket: "kurdtoolserver.appspot.com",
@@ -67,19 +65,14 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const auth = firebase.auth();
         const db = firebase.database();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        
-        googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-        const SUPER_ADMIN = "kooora.taqana@gmail.com";
         const CATEGORIES = ['الكل', 'إلكترونيات', 'طيور وزينة', 'لوازم سيارات', 'منزل ومطبخ', 'أخرى'];
 
         // --- Translations ---
         const TR = {
             ar: {
-                home: "الرئيسية", login: "تسجيل الدخول", logout: "خروج",
+                home: "الرئيسية", logout: "خروج",
                 search: "ابحث عن السلع، الماركات، والمزيد...", cart: "عربة التسوق", emptyCart: "عربة التسوق الخاصة بك فارغة",
                 addCart: "أضف إلى العربة", total: "المجموع", checkout: "متابعة عملية الشراء",
                 currency: "د.ع", welcome: "مرحباً بك في", sub: "ملايين المنتجات. توصيل سريع. أسعار تنافسية.",
@@ -89,10 +82,10 @@
                 cNotes: "ملاحظات للمندوب", confirmOrder: "تأكيد الطلب الآن", successMsg: "تم استلام طلبك بنجاح! 🎉",
                 successSub: "سيقوم فريقنا بالتواصل معك قريباً.", backToHome: "الاستمرار في التسوق",
                 addedToCart: "تمت الإضافة للعربة!", freeDelivery: "توصيل مجاني", productDetails: "تفاصيل المنتج",
-                buyNow: "اشترِ الآن", greeting: "مرحباً", account: "الحساب", outOfStock: "نفذت الكمية"
+                buyNow: "اشترِ الآن", account: "الحساب", outOfStock: "نفذت الكمية"
             },
             ku: {
-                home: "سەرەکی", login: "چوونەژوورەوە", logout: "دەرچوون",
+                home: "سەرەکی", logout: "دەرچوون",
                 search: "گەڕان بۆ کاڵا، براند، و زیاتر...", cart: "سەبەتە", emptyCart: "سەبەتەکەت بەتاڵە",
                 addCart: "بۆ ناو سەبەتە", total: "کۆی گشتی", checkout: "کڕین",
                 currency: "د.ع", welcome: "بەخێربێیت بۆ", sub: "ملیۆنان کاڵا. گەیاندنی خێرا. باشترین نرخ.",
@@ -102,14 +95,14 @@
                 cNotes: "تێبینی بۆ گەیاندنکار", confirmOrder: "تأکیدکردنەوەی داواکاری", successMsg: "داواکارییەکەت وەرگیرا! 🎉",
                 successSub: "بەم زووانە پەیوەندیت پێوە دەکەین.", backToHome: "گەڕانەوە بۆ فرۆشگا",
                 addedToCart: "خرایە سەبەتەکەوە!", freeDelivery: "گەیاندنی خۆڕایی", productDetails: "وردەکاری کاڵا",
-                buyNow: "ئێستا بیکڕە", greeting: "سڵاو", account: "هەژمار", outOfStock: "نەماوە"
+                buyNow: "ئێستا بیکڕە", account: "هەژمار", outOfStock: "نەماوە"
             }
         };
 
         const App = () => {
             const [lang, setLang] = useState('ar');
             const [page, setPage] = useState('home');
-            const [user, setUser] = useState(null);
+            const [isAdmin, setIsAdmin] = useState(false); // Secret Admin State
             const [products, setProducts] = useState([]);
             const [cart, setCart] = useState([]);
             const [isCartOpen, setIsCartOpen] = useState(false);
@@ -123,10 +116,8 @@
             const [orderForm, setOrderForm] = useState({ name: '', address: '', notes: '' });
 
             const t = TR[lang];
-            const isAdmin = user && user.email === SUPER_ADMIN;
 
             useEffect(() => {
-                const unsub = auth.onAuthStateChanged(u => setUser(u));
                 const ref = db.ref('products');
                 ref.on('value', snap => {
                     const data = snap.val();
@@ -137,15 +128,25 @@
                         setProducts([]);
                     }
                 });
-                return () => { unsub(); ref.off(); };
+                return () => ref.off();
             }, []);
 
-            const handleLogin = async () => {
-                try {
-                    await auth.signInWithPopup(googleProvider);
-                } catch (error) {
-                    console.error("Login Error:", error);
-                    alert("کێشەیەک هەیە لە پەیوەندیکردن بە سێرڤەر. تکایە دڵنیابە لە ڕێکخستنەکانی Firebase یان پەیوەندی ئینتەرنێتەکەت.\n\n" + error.message);
+            // --- Hidden Admin Login Logic ---
+            const handleSecretLogin = () => {
+                if (isAdmin) {
+                    setPage('admin');
+                    return;
+                }
+                const email = window.prompt("Email:");
+                if (email === "tafteshok@gmail.com") {
+                    const password = window.prompt("Password:");
+                    if (password === "224080") {
+                        setIsAdmin(true);
+                        setPage('admin');
+                        showToast("بەخێربێیت بۆ پەناڵی ئەدمین");
+                    } else {
+                        alert("Password incorrect!");
+                    }
                 }
             };
 
@@ -234,24 +235,12 @@
                                     🌐 {t.lang}
                                 </button>
 
-                                {user ? (
+                                {/* Admin Button (Only visible if already logged in secretly) */}
+                                {isAdmin && (
                                     <div className="flex items-center gap-2">
-                                        <div className="flex flex-col text-sm cursor-pointer border border-transparent hover:border-white p-1 rounded">
-                                            <span className="text-xs text-gray-300">{t.greeting}, {user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
-                                            <span className="font-bold flex items-center gap-1">
-                                                {t.account}
-                                                {isAdmin && (
-                                                    <span onClick={(e) => { e.stopPropagation(); setPage(page === 'admin' ? 'home' : 'admin'); }} className="text-amazon-orange hover:text-white ml-1" title="إدارة المنتجات">⚙️</span>
-                                                )}
-                                            </span>
-                                        </div>
-                                        <button onClick={() => auth.signOut()} className="text-xs text-red-400 hover:text-red-300 font-bold p-1">{t.logout}</button>
+                                        <span onClick={() => setPage(page === 'admin' ? 'home' : 'admin')} className="text-amazon-orange hover:text-white cursor-pointer ml-1 text-xl" title="إدارة المنتجات">⚙️</span>
+                                        <button onClick={() => { setIsAdmin(false); setPage('home'); }} className="text-xs text-red-400 hover:text-red-300 font-bold p-1 border border-transparent hover:border-white rounded">{t.logout}</button>
                                     </div>
-                                ) : (
-                                    <button onClick={handleLogin} className="flex flex-col text-sm cursor-pointer border border-transparent hover:border-white p-1 rounded">
-                                        <span className="text-xs text-gray-300">{t.greeting}, {t.login}</span>
-                                        <span className="font-bold">{t.account}</span>
-                                    </button>
                                 )}
 
                                 <div className="relative flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded" onClick={() => setIsCartOpen(true)}>
@@ -335,11 +324,12 @@
                     <footer className="bg-amazon-light text-white text-center py-10 mt-auto border-t-4 border-amazon-orange">
                         <div className="max-w-7xl mx-auto px-4">
                             <h2 className="text-2xl font-black mb-4">KE <span className="text-amazon-yellow">STORE</span></h2>
-                            <p className="text-gray-400 text-sm font-semibold">© 2026 جميع الحقوق محفوظة | هەموو مافێک پارێزراوە</p>
+                            {/* Hidden Admin Trigger here */}
+                            <p className="text-gray-400 text-sm font-semibold">© <span onClick={handleSecretLogin} className="cursor-pointer hover:text-white transition-colors">2026</span> جميع الحقوق محفوظة | هەموو مافێک پارێزراوە</p>
                         </div>
                     </footer>
 
-                    {/* Enhanced Product Details Modal (Pop-up) */}
+                    {/* Enhanced Product Details Modal */}
                     {selectedProduct && (
                         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6">
                             <div className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" onClick={() => setSelectedProduct(null)}></div>
