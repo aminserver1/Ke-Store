@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KE STORE</title>
+    <title>KE STORE - IRAQ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -13,9 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .product-card { transition: all 0.3s ease; border-radius: 24px; overflow: hidden; background: white; border: 1px solid #f1f5f9; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcfcfc; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -25,7 +24,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Firebase Config (Updated with your credentials) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDirc0CpBTWr5gxtZQv4ASZv8VRPP2QT90",
             databaseURL: "https://kurdtoolserver-default-rtdb.firebaseio.com/",
@@ -41,169 +39,172 @@
 
         const SUPER_ADMIN = "kooora.taqana@gmail.com";
 
-        // --- App Component ---
+        const translations = {
+            ar: {
+                shop: "المتجر", admin: "الإدارة", welcome: "أهلاً بك في KE STORE", login: "دخول", logout: "خروج",
+                addToCart: "إضافة للسلة", cart: "السلة", total: "المجموع", checkout: "إتمام الطلب",
+                iqd: "د.ع", empty: "السلة فارغة", lang: "کوردی", categories: "الأقسام"
+            },
+            ku: {
+                shop: "فرۆشگا", admin: "بەڕێوەبردن", welcome: "بەخێربێیت بۆ KE STORE", login: "چوونەژوورەوە", logout: "دەرچوون",
+                addToCart: "بۆ ناو سەلە", cart: "سەلەی کڕین", total: "کۆی گشتی", checkout: "ناردنی داواکاری",
+                iqd: "د.ع", empty: "سەلەکە بەتاڵە", lang: "العربية", categories: "بەشەکان"
+            }
+        };
+
         const App = () => {
+            const [lang, setLang] = useState('ar');
             const [page, setPage] = useState('market');
-            const [products, setProducts] = useState([]);
             const [user, setUser] = useState(null);
-            const [authorizedAdmins, setAuthorizedAdmins] = useState([SUPER_ADMIN]);
+            const [products, setProducts] = useState([]);
+            const [cart, setCart] = useState([]);
+            const [showCart, setShowCart] = useState(false);
+
+            const t = translations[lang];
 
             useEffect(() => {
                 auth.onAuthStateChanged(u => setUser(u));
-                
-                // Load Products
-                db.ref('products').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    const list = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                    setProducts(list.reverse());
-                });
-
-                // Load Authorized Admins
-                db.ref('authorized_admins').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        const adminList = Object.values(data);
-                        setAuthorizedAdmins([SUPER_ADMIN, ...adminList]);
-                    }
+                db.ref('products').on('value', snap => {
+                    const data = snap.val();
+                    setProducts(data ? Object.keys(data).map(k => ({id: k, ...data[k]})) : []);
                 });
             }, []);
 
-            const isSuperAdmin = user?.email === SUPER_ADMIN;
-            const isAdmin = user && authorizedAdmins.includes(user.email);
-
-            const handleAddProduct = (p) => {
-                if (!isAdmin) return;
-                db.ref('products').push({ ...p, createdAt: Date.now() });
-                alert("کاڵاکە بە سەرکەوتوویی بڵاوکرایەوە ✅");
-            };
-
-            const handleDeleteProduct = (id) => {
-                if (window.confirm("دڵنیای لە سڕینەوەی ئەم کاڵایە؟")) {
-                    db.ref(`products/${id}`).remove();
+            const addToCart = (p) => {
+                const exist = cart.find(x => x.id === p.id);
+                if (exist) {
+                    setCart(cart.map(x => x.id === p.id ? {...exist, qty: exist.qty + 1} : x));
+                } else {
+                    setCart([...cart, {...p, qty: 1}]);
                 }
             };
 
-            const handleAddAdmin = (email) => {
-                if (!isSuperAdmin) return;
-                db.ref('authorized_admins').push(email);
-                alert("ئەدمین زیادکرا ✅");
-            };
+            const removeFromCart = (id) => setCart(cart.filter(x => x.id !== id));
+            const cartTotal = cart.reduce((a, c) => a + (c.price * c.qty), 0);
 
             return (
-                <div className="min-h-screen flex flex-col">
+                <div className={`min-h-screen flex flex-col ${lang === 'ku' ? 'text-right' : 'text-right'}`} dir="rtl">
                     {/* Header */}
-                    <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b p-4">
+                    <nav className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b p-4 shadow-sm">
                         <div className="max-w-7xl mx-auto flex justify-between items-center">
-                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage('market')}>
-                                <div className="bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold shadow-lg">KE</div>
-                                <span className="text-xl font-extrabold tracking-tighter">KE STORE</span>
+                            <div className="flex items-center gap-4">
+                                <div onClick={() => setPage('market')} className="cursor-pointer flex items-center gap-2">
+                                    <div className="bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold">KE</div>
+                                    <span className="text-xl font-extrabold hidden sm:block tracking-tighter">KE STORE</span>
+                                </div>
+                                <button onClick={() => setLang(lang === 'ar' ? 'ku' : 'ar')} className="text-xs font-bold bg-slate-100 px-3 py-1 rounded-full">{t.lang}</button>
                             </div>
-                            <div className="flex gap-3">
-                                <button onClick={() => setPage('market')} className={`px-5 py-2 rounded-xl text-sm font-bold transition ${page === 'market' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}>فرۆشگا</button>
-                                <button onClick={() => setPage('admin')} className={`px-5 py-2 rounded-xl text-sm font-bold transition ${page === 'admin' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}>ئەدمین</button>
+
+                            <div className="flex items-center gap-2 sm:gap-4">
+                                <div className="relative cursor-pointer" onClick={() => setShowCart(!showCart)}>
+                                    <span className="text-2xl">🛒</span>
+                                    {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+                                </div>
+                                {user ? (
+                                    <div className="flex items-center gap-2">
+                                        {user.email === SUPER_ADMIN && (
+                                            <button onClick={() => setPage('admin')} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded-lg font-bold">Admin</button>
+                                        )}
+                                        <button onClick={() => auth.signOut()} className="text-xs font-bold text-slate-500">{t.logout}</button>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => auth.signInWithPopup(googleProvider)} className="text-sm font-bold bg-slate-900 text-white px-4 py-2 rounded-xl">{t.login}</button>
+                                )}
                             </div>
                         </div>
                     </nav>
 
-                    {/* Main Content */}
+                    {/* Market */}
                     <main className="flex-1 max-w-7xl mx-auto w-full p-4">
                         {page === 'market' ? (
                             <section>
-                                <div className="text-center py-12">
-                                    <h1 className="text-4xl sm:text-6xl font-black mb-4">بەخێربێن بۆ KE STORE</h1>
-                                    <p className="text-slate-500 font-medium text-lg">باشترین کاڵاکان بە گونجاوترین نرخ</p>
+                                <div className="py-10 text-center">
+                                    <h1 className="text-3xl sm:text-5xl font-black mb-2">{t.welcome}</h1>
+                                    <p className="text-slate-400 font-bold">IRAQ Store - Fast Delivery</p>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                                     {products.map(p => (
-                                        <div key={p.id} className="product-card p-4">
-                                            <div className="h-56 bg-slate-100 rounded-2xl mb-4 overflow-hidden">
-                                                <img src={p.imageUrl} className="w-full h-full object-cover" onError={(e) => e.target.src='https://via.placeholder.com/400'} />
+                                        <div key={p.id} className="bg-white p-3 rounded-[2rem] border hover:shadow-xl transition-all group">
+                                            <div className="h-40 sm:h-56 bg-slate-50 rounded-[1.5rem] mb-4 overflow-hidden">
+                                                <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition" />
                                             </div>
-                                            <h3 className="font-bold text-lg mb-1">{p.name}</h3>
-                                            <p className="text-slate-400 text-sm mb-4 line-clamp-2">{p.description}</p>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xl font-black text-indigo-600">{Number(p.price).toLocaleString()} د.ع</span>
-                                                <button className="bg-slate-900 text-white p-2 rounded-lg">🛒</button>
-                                            </div>
+                                            <h3 className="font-bold text-sm sm:text-lg mb-1 truncate">{p.name}</h3>
+                                            <p className="text-indigo-600 font-black text-lg mb-4">{Number(p.price).toLocaleString()} {t.iqd}</p>
+                                            <button onClick={() => addToCart(p)} className="w-full bg-slate-900 text-white py-3 rounded-2xl text-xs font-bold hover:bg-indigo-600 transition">
+                                                {t.addToCart}
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
                             </section>
                         ) : (
-                            <AdminPanel 
-                                user={user} 
-                                isAdmin={isAdmin} 
-                                isSuperAdmin={isSuperAdmin}
-                                products={products} 
-                                onAdd={handleAddProduct} 
-                                onDelete={handleDeleteProduct}
-                                onAddAdmin={handleAddAdmin}
-                            />
+                            <AdminPanel products={products} db={db} />
                         )}
                     </main>
 
-                    <footer className="bg-white border-t p-8 text-center mt-20">
-                        <p className="text-slate-400 font-bold text-sm">© 2026 KE STORE — هەموو مافەکان پارێزراوە</p>
-                    </footer>
+                    {/* Cart Modal */}
+                    {showCart && (
+                        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex justify-end">
+                            <div className="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-2xl">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-2xl font-black">{t.cart}</h2>
+                                    <button onClick={() => setShowCart(false)} className="text-2xl">✕</button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar">
+                                    {cart.length === 0 ? <p className="text-center py-20 text-slate-400 font-bold">{t.empty}</p> : 
+                                        cart.map(item => (
+                                            <div key={item.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border">
+                                                <img src={item.imageUrl} className="w-16 h-16 rounded-xl object-cover" />
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-sm">{item.name}</h4>
+                                                    <p className="text-indigo-600 font-black text-xs">{item.qty} × {Number(item.price).toLocaleString()} {t.iqd}</p>
+                                                </div>
+                                                <button onClick={() => removeFromCart(item.id)} className="text-red-500">🗑️</button>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                                <div className="border-t pt-6 mt-6">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="font-bold text-slate-500">{t.total}</span>
+                                        <span className="text-2xl font-black">{cartTotal.toLocaleString()} {t.iqd}</span>
+                                    </div>
+                                    <button onClick={() => alert('Order Sent!')} className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg">
+                                        {t.checkout}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
 
-        const AdminPanel = ({ user, isAdmin, isSuperAdmin, products, onAdd, onDelete, onAddAdmin }) => {
-            const [form, setForm] = useState({ name: '', price: '', description: '', imageUrl: '' });
-            const [newAdmin, setNewAdmin] = useState('');
-
-            if (!user) return (
-                <div className="flex flex-col items-center py-20">
-                    <h2 className="text-2xl font-black mb-6">تایبەت بە ئەدمین</h2>
-                    <button onClick={() => auth.signInWithPopup(googleProvider)} className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg">چوونەژوورەوە لەگەڵ Google</button>
-                </div>
-            );
-
-            if (!isAdmin) return <div className="text-center py-20 font-bold text-red-500">تۆ مۆڵەتی ئەدمینت نییە</div>;
-
+        const AdminPanel = ({ products, db }) => {
+            const [f, setF] = useState({name:'', price:'', img:'', desc:''});
+            const save = (e) => {
+                e.preventDefault();
+                db.ref('products').push({name:f.name, price:Number(f.price), imageUrl:f.img, description:f.desc, createdAt: Date.now()});
+                setF({name:'', price:'', img:'', desc:''});
+            };
             return (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 py-10">
-                    {/* Add Product */}
-                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border">
-                        <h2 className="text-2xl font-black mb-6">بڵاوکردنەوەی کاڵا</h2>
-                        <form onSubmit={(e) => { e.preventDefault(); onAdd(form); setForm({name:'', price:'', description:'', imageUrl:''}); }} className="space-y-4">
-                            <input required placeholder="ناوی کاڵا" className="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:border-indigo-500 font-bold" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
-                            <input required type="number" placeholder="نرخ (د.ع)" className="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:border-indigo-500 font-bold" value={form.price} onChange={e=>setForm({...form, price:e.target.value})} />
-                            <input required placeholder="لینکی وێنە (Direct URL)" className="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:border-indigo-500 font-bold" value={form.imageUrl} onChange={e=>setForm({...form, imageUrl:e.target.value})} />
-                            <textarea required placeholder="وەسفی کاڵا" className="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:border-indigo-500 font-bold h-32" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}></textarea>
-                            <button className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition">بڵاوکردنەوە</button>
-                        </form>
-                    </div>
-
-                    {/* Manage Section */}
-                    <div className="space-y-6">
-                        {isSuperAdmin && (
-                            <div className="bg-white p-6 rounded-[2.5rem] border shadow-sm">
-                                <h3 className="font-black mb-4">زیادکردنی ئەدمینی نوێ</h3>
-                                <div className="flex gap-2">
-                                    <input placeholder="Email..." className="flex-1 p-3 bg-slate-50 rounded-xl border outline-none font-bold" value={newAdmin} onChange={e=>setNewAdmin(e.target.value)} />
-                                    <button onClick={() => {onAddAdmin(newAdmin); setNewAdmin('');}} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold">زیادکردن</button>
-                                </div>
+                <div className="grid lg:grid-cols-2 gap-10 py-10">
+                    <form onSubmit={save} className="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-4">
+                        <h2 className="text-2xl font-black mb-4 text-red-600 underline">Add New Product</h2>
+                        <input required placeholder="Product Name" className="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" value={f.name} onChange={e=>setF({...f, name:e.target.value})} />
+                        <input required type="number" placeholder="Price (IQD)" className="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" value={f.price} onChange={e=>setF({...f, price:e.target.value})} />
+                        <input required placeholder="Direct Image URL" className="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" value={f.img} onChange={e=>setF({...f, img:e.target.value})} />
+                        <textarea placeholder="Description" className="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold h-32" value={f.desc} onChange={e=>setF({...f, desc:e.target.value})}></textarea>
+                        <button className="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg">Publish Now</button>
+                    </form>
+                    <div className="bg-white p-6 rounded-[2.5rem] border shadow-sm overflow-y-auto max-h-[600px]">
+                        <h3 className="font-black mb-4">Total Products: {products.length}</h3>
+                        {products.map(p => (
+                            <div key={p.id} className="flex items-center justify-between p-3 border-b">
+                                <div className="flex items-center gap-3"><img src={p.imageUrl} className="w-10 h-10 rounded-lg object-cover" /> <span className="font-bold text-sm">{p.name}</span></div>
+                                <button onClick={() => db.ref(`products/${p.id}`).remove()} className="text-red-500">Delete</button>
                             </div>
-                        )}
-                        <div className="bg-white p-6 rounded-[2.5rem] border shadow-sm">
-                            <h3 className="font-black mb-4 text-xl">لیستی کاڵاکان ({products.length})</h3>
-                            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                                {products.map(p => (
-                                    <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border">
-                                        <div className="flex items-center gap-3">
-                                            <img src={p.imageUrl} className="w-12 h-12 rounded-lg object-cover" />
-                                            <div>
-                                                <div className="font-bold text-sm">{p.name}</div>
-                                                <div className="text-indigo-600 text-xs font-black">{Number(p.price).toLocaleString()} د.ع</div>
-                                            </div>
-                                        </div>
-                                        <button onClick={() => onDelete(p.id)} className="text-red-500 p-2">🗑️</button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             );
