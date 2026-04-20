@@ -9,6 +9,14 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    colors: {
+                        amazon: {
+                            DEFAULT: '#131921',
+                            light: '#232f3e',
+                            yellow: '#febd69',
+                            orange: '#f90'
+                        }
+                    },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
                         'slide-up': 'slideUp 0.4s ease-out',
@@ -31,15 +39,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
         .badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: 900; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15); }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
-<body class="text-slate-800 antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+<body class="text-slate-800 antialiased overflow-x-hidden selection:bg-amazon-orange selection:text-white">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -60,6 +68,9 @@
         const auth = firebase.auth();
         const db = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
+        
+        // Always prompt for account selection so "Click to login" is seamless
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
 
         const SUPER_ADMIN = "kooora.taqana@gmail.com";
         const CATEGORIES = ['الكل', 'إلكترونيات', 'طيور وزينة', 'لوازم سيارات', 'منزل ومطبخ', 'أخرى'];
@@ -67,30 +78,30 @@
         // --- Translations ---
         const TR = {
             ar: {
-                home: "الرئيسية", admin: "لوحة التحكم", login: "تسجيل الدخول", logout: "تسجيل الخروج",
-                search: "ابحث عن المنتجات...", cart: "سلة المشتريات", emptyCart: "سلتك فارغة حالياً",
-                addCart: "أضف للسلة", total: "المجموع الكلي", checkout: "متابعة الشراء",
-                currency: "د.ع", welcome: "اكتشف أفضل المنتجات", sub: "تسوق الآن بأفضل الأسعار وأسرع توصيل لجميع المحافظات.",
-                lang: "کوردی", adminTitle: "إدارة المتجر", addProduct: "إضافة منتج جديد",
-                pName: "اسم المنتج", pPrice: "السعر", pImg: "رابط الصورة", pDesc: "الوصف", pCat: "القسم", publish: "نشر المنتج",
-                // Checkout Translations
-                checkoutTitle: "تفاصيل التوصيل", cName: "الاسم الكامل", cAddress: "العنوان الكامل (المدينة، الحي، أقرب نقطة دالة)",
-                cNotes: "ملاحظات إضافية (اختياري)", confirmOrder: "تأكيد وإرسال الطلب", successMsg: "تم استلام طلبك بنجاح! 🎉",
-                successSub: "سنتواصل معك قريباً لتأكيد الطلب.", backToHome: "العودة للتسوق",
-                addedToCart: "تمت الإضافة إلى السلة بنجاح!"
+                home: "الرئيسية", login: "تسجيل الدخول", logout: "خروج",
+                search: "ابحث عن السلع، الماركات، والمزيد...", cart: "عربة التسوق", emptyCart: "عربة التسوق الخاصة بك فارغة",
+                addCart: "أضف إلى العربة", total: "المجموع", checkout: "متابعة عملية الشراء",
+                currency: "د.ع", welcome: "مرحباً بك في", sub: "ملايين المنتجات. توصيل سريع. أسعار تنافسية.",
+                lang: "کوردی", adminTitle: "إدارة المنتجات", addProduct: "إضافة منتج جديد",
+                pName: "اسم المنتج", pPrice: "السعر", pImg: "رابط الصورة", pDesc: "الوصف", pCat: "القسم", publish: "نشر",
+                checkoutTitle: "معلومات التوصيل", cName: "الاسم الكامل", cAddress: "العنوان بالتفصيل",
+                cNotes: "ملاحظات للمندوب", confirmOrder: "تأكيد الطلب الآن", successMsg: "تم استلام طلبك بنجاح! 🎉",
+                successSub: "سيقوم فريقنا بالتواصل معك قريباً.", backToHome: "الاستمرار في التسوق",
+                addedToCart: "تمت الإضافة للعربة!", freeDelivery: "توصيل مجاني", productDetails: "تفاصيل المنتج",
+                buyNow: "اشترِ الآن", greeting: "مرحباً", account: "الحساب"
             },
             ku: {
-                home: "سەرەکی", admin: "کۆنتڕۆڵ پانێڵ", login: "چوونەژوورەوە", logout: "دەرچوون",
-                search: "گەڕان بۆ کاڵاکان...", cart: "سەلەی کڕین", emptyCart: "سەلەکەت بەتاڵە",
-                addCart: "بۆ ناو سەلە", total: "کۆی گشتی", checkout: "پڕۆسەی کڕین",
-                currency: "د.ع", welcome: "باشترین کاڵاکان ببينە", sub: "بازاڕ بکە بە باشترین نرخ و خێراترین گەیاندن بۆ هەموو شارەکان.",
-                lang: "العربية", adminTitle: "بەڕێوەبردنی فرۆشگا", addProduct: "زیادکردنی کاڵای نوێ",
+                home: "سەرەکی", login: "چوونەژوورەوە", logout: "دەرچوون",
+                search: "گەڕان بۆ کاڵا، براند، و زیاتر...", cart: "سەبەتە", emptyCart: "سەبەتەکەت بەتاڵە",
+                addCart: "بۆ ناو سەبەتە", total: "کۆی گشتی", checkout: "کڕین",
+                currency: "د.ع", welcome: "بەخێربێیت بۆ", sub: "ملیۆنان کاڵا. گەیاندنی خێرا. باشترین نرخ.",
+                lang: "العربية", adminTitle: "بەڕێوەبردنی کاڵاکان", addProduct: "زیادکردنی کاڵای نوێ",
                 pName: "ناوی کاڵا", pPrice: "نرخ", pImg: "لینکی وێنە", pDesc: "وەسف", pCat: "بەش", publish: "بڵاوکردنەوە",
-                // Checkout Translations
-                checkoutTitle: "زانیاری گەیاندن", cName: "ناوی تەواو", cAddress: "ناونیشانی تەواو (شار، گەڕەک، نزیکترین شوێن)",
-                cNotes: "تێبینی زیاتر (ئارەزوومەندانە)", confirmOrder: "تأکیدکردنەوەی داواکاری", successMsg: "داواکارییەکەت بە سەرکەوتوویی وەرگیرا! 🎉",
+                checkoutTitle: "زانیاری گەیاندن", cName: "ناوی تەواو", cAddress: "ناونیشانی تەواو",
+                cNotes: "تێبینی بۆ گەیاندنکار", confirmOrder: "تأکیدکردنەوەی داواکاری", successMsg: "داواکارییەکەت وەرگیرا! 🎉",
                 successSub: "بەم زووانە پەیوەندیت پێوە دەکەین.", backToHome: "گەڕانەوە بۆ فرۆشگا",
-                addedToCart: "خرایە سەبەتەکەوە!"
+                addedToCart: "خرایە سەبەتەکەوە!", freeDelivery: "گەیاندنی خۆڕایی", productDetails: "وردەکاری کاڵا",
+                buyNow: "ئێستا بیکڕە", greeting: "سڵاو", account: "هەژمار"
             }
         };
 
@@ -103,8 +114,8 @@
             const [isCartOpen, setIsCartOpen] = useState(false);
             const [search, setSearch] = useState('');
             const [activeCat, setActiveCat] = useState('الكل');
+            const [selectedProduct, setSelectedProduct] = useState(null); // For product details modal
             
-            // Checkout & Toast States
             const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
             const [isSuccessOpen, setIsSuccessOpen] = useState(false);
             const [toastMsg, setToastMsg] = useState('');
@@ -128,17 +139,16 @@
                 return () => { unsub(); ref.off(); };
             }, []);
 
-            // Login Logic with Error Handling
+            // Smoother Login with Error Alert
             const handleLogin = async () => {
                 try {
                     await auth.signInWithPopup(googleProvider);
                 } catch (error) {
-                    console.error(error);
-                    alert("تێبینی: کێشەیەک هەیە لە کاتی لۆگینبوون. تکایە دڵنیابە کە (Google Sign-in) لەناو Firebase Authentication چالاک کراوە.\n\nالخطأ: " + error.message);
+                    console.error("Login Error:", error);
+                    alert("کێشەیەک هەیە لە پەیوەندیکردن بە سێرڤەر. تکایە دڵنیابە لە ڕێکخستنەکانی Firebase یان پەیوەندی ئینتەرنێتەکەت.\n\n" + error.message);
                 }
             };
 
-            // Cart Functions
             const showToast = (msg) => {
                 setToastMsg(msg);
                 setTimeout(() => setToastMsg(''), 3000);
@@ -152,6 +162,7 @@
                     setCart([...cart, { ...product, qty: 1 }]);
                 }
                 showToast(t.addedToCart);
+                setSelectedProduct(null); // Close modal if open
             };
 
             const updateQty = (id, amount) => {
@@ -162,10 +173,8 @@
 
             const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
 
-            // Handle Order Submission
             const handleOrderSubmit = (e) => {
                 e.preventDefault();
-                // Here you could send `orderForm` and `cart` to Firebase db.ref('orders').push(...)
                 db.ref('orders').push({
                     customer: orderForm,
                     items: cart,
@@ -175,8 +184,8 @@
                 
                 setIsCheckoutOpen(false);
                 setIsSuccessOpen(true);
-                setCart([]); // Clear cart
-                setOrderForm({ name: '', address: '', notes: '' }); // Reset form
+                setCart([]);
+                setOrderForm({ name: '', address: '', notes: '' });
             };
 
             const filteredProducts = products.filter(p => {
@@ -185,118 +194,147 @@
                 return matchCat && matchSearch;
             });
 
+            // Random stars generator for demo
+            const renderStars = () => {
+                return (
+                    <div className="flex items-center text-amazon-orange text-sm mb-1">
+                        ★ ★ ★ ★ <span className="text-gray-300">★</span> 
+                        <span className="text-blue-600 text-xs ml-1 font-normal">(128)</span>
+                    </div>
+                );
+            }
+
             return (
                 <div className={`flex flex-col min-h-screen ${lang === 'ku' ? 'text-right' : 'text-right'}`} dir="rtl">
-                    {/* Toast Notification */}
+                    {/* Toast */}
                     {toastMsg && (
-                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[110] bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold animate-slide-up flex items-center gap-2">
-                            <span className="bg-green-500 w-2 h-2 rounded-full animate-pulse"></span>
-                            {toastMsg}
+                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[150] bg-green-600 text-white px-6 py-3 rounded-md shadow-2xl font-bold animate-slide-up flex items-center gap-2">
+                            ✓ {toastMsg}
                         </div>
                     )}
 
-                    {/* Navbar */}
-                    <nav className="glass-panel sticky top-0 z-50 px-4 py-3">
-                        <div className="max-w-7xl mx-auto flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div onClick={() => setPage('home')} className="flex items-center gap-3 cursor-pointer group">
-                                    <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-[1rem] flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform">KE</div>
-                                    <span className="text-2xl font-black tracking-tight hidden sm:block text-slate-800">STORE</span>
-                                </div>
-                                <button onClick={() => setLang(lang === 'ar' ? 'ku' : 'ar')} className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-bold transition">
-                                    {t.lang}
+                    {/* Top Navbar - Amazon Style */}
+                    <header className="bg-amazon text-white sticky top-0 z-50">
+                        <div className="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+                            {/* Logo */}
+                            <div onClick={() => setPage('home')} className="flex items-center gap-2 cursor-pointer border border-transparent hover:border-white p-1 rounded">
+                                <span className="text-2xl font-black tracking-tighter text-amazon-orange">KE<span className="text-white font-bold">STORE</span></span>
+                            </div>
+
+                            {/* Middle Search Bar */}
+                            <div className="flex-1 hidden md:flex h-10 rounded-md overflow-hidden bg-white group focus-within:ring-2 ring-amazon-orange">
+                                <select className="bg-gray-100 text-gray-700 px-2 text-sm border-none outline-none border-r border-gray-300 cursor-pointer hover:bg-gray-200">
+                                    {CATEGORIES.map(c=><option key={c}>{c === 'الكل' ? (lang==='ku'?'هەمووی':'الكل') : c}</option>)}
+                                </select>
+                                <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none" />
+                                <button className="bg-amazon-yellow hover:bg-amazon-orange text-black px-5 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-3 sm:gap-6">
-                                <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={() => setIsCartOpen(true)}>
-                                    <div className="w-11 h-11 bg-white border border-slate-200 shadow-sm rounded-full flex items-center justify-center text-slate-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                                    </div>
-                                    {cart.length > 0 && <span className="badge animate-pop">{cart.reduce((a,c)=>a+c.qty,0)}</span>}
-                                </div>
-                                
+                            {/* Right Actions */}
+                            <div className="flex items-center gap-2 sm:gap-4">
+                                <button onClick={() => setLang(lang === 'ar' ? 'ku' : 'ar')} className="flex items-center gap-1 font-bold text-sm hover:text-gray-300">
+                                    🌐 {t.lang}
+                                </button>
+
                                 {user ? (
-                                    <div className="flex items-center gap-3 border-r border-slate-300 pr-3">
-                                        {isAdmin && (
-                                            <button onClick={() => setPage(page === 'admin' ? 'home' : 'admin')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm ${page === 'admin' ? 'bg-indigo-600 text-white' : 'bg-red-50 text-red-600 border border-red-100 hover:bg-red-100'}`}>
-                                                {t.admin}
-                                            </button>
-                                        )}
-                                        <div className="hidden sm:flex flex-col items-end">
-                                            <span className="text-xs text-slate-400 font-bold">مرحباً</span>
-                                            <span className="text-sm font-black text-slate-700 truncate w-24">{user.displayName || user.email.split('@')[0]}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex flex-col text-sm cursor-pointer border border-transparent hover:border-white p-1 rounded">
+                                            <span className="text-xs text-gray-300">{t.greeting}, {user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
+                                            <span className="font-bold flex items-center gap-1">
+                                                {t.account}
+                                                {/* Hidden Admin Entry Point */}
+                                                {isAdmin && (
+                                                    <span onClick={(e) => { e.stopPropagation(); setPage(page === 'admin' ? 'home' : 'admin'); }} className="text-amazon-orange hover:text-white" title="Settings">⚙️</span>
+                                                )}
+                                            </span>
                                         </div>
-                                        <button onClick={() => auth.signOut()} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-red-500 hover:text-white transition" title={t.logout}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                                        </button>
+                                        <button onClick={() => auth.signOut()} className="text-xs text-gray-400 hover:text-white underline">{t.logout}</button>
                                     </div>
                                 ) : (
-                                    <button onClick={handleLogin} className="bg-slate-900 hover:bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-slate-300 transition-all">
-                                        {t.login}
+                                    <button onClick={handleLogin} className="flex flex-col text-sm cursor-pointer border border-transparent hover:border-white p-1 rounded">
+                                        <span className="text-xs text-gray-300">{t.greeting}, تسجيل الدخول</span>
+                                        <span className="font-bold">{t.account} & القوائم</span>
                                     </button>
                                 )}
+
+                                <div className="relative flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded" onClick={() => setIsCartOpen(true)}>
+                                    <div className="relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                        <span className="absolute top-1 left-1/2 transform -translate-x-1/2 text-amazon-orange font-bold text-sm bg-amazon w-6 h-5 text-center flex justify-center items-center rounded-full mt-1">
+                                            {cart.reduce((a,c)=>a+c.qty,0)}
+                                        </span>
+                                    </div>
+                                    <span className="font-bold hidden sm:block mt-auto text-sm">{t.cart}</span>
+                                </div>
                             </div>
                         </div>
-                    </nav>
+
+                        {/* Mobile Search Bar */}
+                        <div className="md:hidden px-4 pb-3">
+                            <div className="flex h-10 rounded-md overflow-hidden bg-white">
+                                <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none" />
+                                <button className="bg-amazon-yellow text-black px-4"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+                            </div>
+                        </div>
+
+                        {/* Category Sub-nav */}
+                        <div className="bg-amazon-light text-white text-sm px-4 py-1.5 overflow-x-auto hide-scroll flex gap-4 whitespace-nowrap">
+                            <button className="font-bold flex items-center gap-1">☰ الأقسام</button>
+                            {CATEGORIES.map(cat => (
+                                <button key={cat} onClick={() => {setActiveCat(cat); setPage('home');}} className={`hover:border-white border border-transparent px-1 rounded transition-colors ${activeCat === cat ? 'font-bold text-amazon-yellow' : ''}`}>
+                                    {cat === 'الكل' ? (lang === 'ku' ? 'هەمووی' : 'الكل') : cat}
+                                </button>
+                            ))}
+                        </div>
+                    </header>
 
                     {/* Main Content */}
-                    <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 animate-fade-in">
+                    <main className="flex-1 w-full max-w-[1500px] mx-auto animate-fade-in pb-12">
                         {page === 'home' ? (
-                            <div>
-                                {/* Hero Section */}
-                                <div className="bg-slate-900 rounded-[2rem] p-8 sm:p-12 mb-10 relative overflow-hidden text-center text-white shadow-2xl">
-                                    <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center"></div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-                                    <div className="relative z-10 max-w-3xl mx-auto">
-                                        <h1 className="text-4xl sm:text-6xl font-black mb-4 leading-tight">{t.welcome}</h1>
-                                        <p className="text-lg sm:text-xl text-slate-300 font-bold mb-8">{t.sub}</p>
-                                        <div className="relative max-w-lg mx-auto transform hover:scale-[1.02] transition-transform">
-                                            <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="w-full pl-4 pr-14 py-4 rounded-2xl text-slate-900 font-bold outline-none focus:ring-4 ring-indigo-500/50 shadow-2xl text-lg" />
-                                            <svg className="absolute right-5 top-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                                        </div>
+                            <div className="relative">
+                                {/* Hero Banner */}
+                                <div className="w-full h-[250px] sm:h-[350px] bg-gradient-to-r from-amazon-light to-blue-900 relative">
+                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-100 to-transparent"></div>
+                                    <div className="relative z-10 px-6 pt-10 sm:pt-20 text-white max-w-xl mx-auto text-center drop-shadow-lg">
+                                        <h1 className="text-3xl sm:text-5xl font-black mb-2">{t.welcome} <span className="text-amazon-yellow">KESTORE</span></h1>
+                                        <p className="text-lg font-bold">{t.sub}</p>
                                     </div>
                                 </div>
 
-                                {/* Categories */}
-                                <div className="flex gap-3 overflow-x-auto hide-scroll pb-6 mb-4">
-                                    {CATEGORIES.map(cat => (
-                                        <button key={cat} onClick={() => setActiveCat(cat)} className={`whitespace-nowrap px-6 py-3 rounded-xl font-bold text-sm sm:text-base transition-all ${activeCat === cat ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-105' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`}>
-                                            {cat === 'الكل' ? (lang === 'ku' ? 'هەمووی' : 'الكل') : cat}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Products Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                                    {filteredProducts.length === 0 ? (
-                                        <div className="col-span-full text-center py-20 opacity-50">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                                            <h3 className="font-bold text-2xl">لا توجد منتجات / کاڵا نەدۆزرایەوە</h3>
-                                        </div>
-                                    ) : (
-                                        filteredProducts.map(p => (
-                                            <div key={p.id} className="product-card bg-white rounded-[1.5rem] border border-slate-100 p-3 sm:p-4 flex flex-col group relative">
-                                                <div className="w-full aspect-square rounded-[1rem] bg-slate-50 overflow-hidden relative mb-4">
-                                                    <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
-                                                    <span className="absolute top-2 right-2 bg-white/90 backdrop-blur text-[10px] sm:text-xs font-black px-2 sm:px-3 py-1 rounded-full text-slate-700 shadow-sm border border-slate-100">{p.category}</span>
-                                                </div>
-                                                <div className="flex-1 flex flex-col">
-                                                    <h3 className="font-black text-base sm:text-lg text-slate-800 mb-1 line-clamp-1">{p.name}</h3>
-                                                    <p className="text-xs sm:text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1 font-semibold">{p.description}</p>
-                                                    <div className="flex items-center justify-between mt-auto">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-lg sm:text-2xl font-black text-indigo-600 leading-none">{Number(p.price).toLocaleString()}</span>
-                                                            <span className="text-[10px] sm:text-xs text-slate-400 font-bold">{t.currency}</span>
+                                {/* Products Grid - Shifted up over the banner */}
+                                <div className="px-4 -mt-20 sm:-mt-32 relative z-20">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
+                                        {filteredProducts.length === 0 ? (
+                                            <div className="col-span-full text-center py-20 bg-white rounded-lg shadow">
+                                                <h3 className="font-bold text-xl text-gray-500">لا توجد منتجات / کاڵا نەدۆزرایەوە</h3>
+                                            </div>
+                                        ) : (
+                                            filteredProducts.map(p => (
+                                                <div key={p.id} onClick={() => setSelectedProduct(p)} className="product-card bg-white cursor-pointer rounded-lg overflow-hidden flex flex-col border border-gray-200">
+                                                    <div className="w-full pt-[100%] relative bg-white">
+                                                        <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-4 mix-blend-multiply" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
+                                                    </div>
+                                                    <div className="p-3 flex-1 flex flex-col border-t border-gray-100">
+                                                        <h3 className="font-bold text-sm sm:text-base text-gray-900 mb-1 line-clamp-2 hover:text-amazon-orange">{p.name}</h3>
+                                                        {renderStars()}
+                                                        <div className="mt-1 mb-2">
+                                                            <span className="text-xl font-black text-gray-900">{Number(p.price).toLocaleString()}</span>
+                                                            <span className="text-xs text-gray-600 mr-1">{t.currency}</span>
                                                         </div>
-                                                        <button onClick={() => addToCart(p)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[1rem] bg-slate-900 text-white flex items-center justify-center hover:bg-indigo-600 transition-colors shadow-lg shadow-slate-200 active:scale-95 group-hover:animate-pop">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                                        <div className="text-xs text-green-600 font-bold mb-3 flex items-center gap-1">
+                                                            ✓ {t.freeDelivery}
+                                                        </div>
+                                                        <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-2 rounded-full text-sm font-bold shadow-sm transition-colors">
+                                                            {t.addCart}
                                                         </button>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
-                                    )}
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ) : (
@@ -305,45 +343,78 @@
                     </main>
 
                     {/* Footer */}
-                    <footer className="bg-white border-t border-slate-200 py-10 mt-12">
-                        <div className="max-w-7xl mx-auto px-4 text-center">
-                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-lg mx-auto mb-4">KE</div>
-                            <p className="text-slate-400 font-bold text-sm">© 2026 KE STORE. All Rights Reserved.</p>
+                    <footer className="bg-amazon-light text-white text-center py-8 mt-auto border-t-4 border-amazon-orange">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <h2 className="text-xl font-black mb-4">KE <span className="text-amazon-yellow">STORE</span></h2>
+                            <p className="text-gray-400 text-sm">© 2026 جميع الحقوق محفوظة | هەموو مافێک پارێزراوە</p>
                         </div>
                     </footer>
 
-                    {/* Cart Drawer */}
-                    {isCartOpen && !isCheckoutOpen && (
-                        <div className="fixed inset-0 z-[100] flex justify-end">
-                            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setIsCartOpen(false)}></div>
-                            <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-up sm:animate-fade-in">
-                                <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
-                                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                                        <span className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
-                                        {t.cart}
-                                    </h2>
-                                    <button onClick={() => setIsCartOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-white border shadow-sm hover:bg-slate-100 transition">✕</button>
+                    {/* Product Details Modal */}
+                    {selectedProduct && (
+                        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedProduct(null)}></div>
+                            <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col md:flex-row overflow-hidden animate-pop max-h-[90vh]">
+                                <button onClick={() => setSelectedProduct(null)} className="absolute top-4 left-4 z-10 w-8 h-8 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center font-bold transition">✕</button>
+                                
+                                {/* Image Section */}
+                                <div className="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 border-l border-gray-200">
+                                    <img src={selectedProduct.imageUrl} className="max-h-[300px] md:max-h-[500px] object-contain mix-blend-multiply" />
                                 </div>
                                 
-                                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                                {/* Info Section */}
+                                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
+                                    <span className="text-sm font-bold text-amazon-orange mb-2">{selectedProduct.category}</span>
+                                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">{selectedProduct.name}</h2>
+                                    {renderStars()}
+                                    <div className="border-b border-gray-200 my-4"></div>
+                                    <div className="mb-4">
+                                        <span className="text-3xl font-black text-gray-900">{Number(selectedProduct.price).toLocaleString()}</span>
+                                        <span className="text-sm text-gray-500 mr-2">{t.currency}</span>
+                                    </div>
+                                    <p className="text-gray-600 text-sm leading-relaxed mb-6 font-semibold whitespace-pre-wrap">{selectedProduct.description}</p>
+                                    
+                                    <div className="mt-auto space-y-3">
+                                        <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3 text-sm font-bold text-gray-700 border border-gray-200">
+                                            <span className="text-green-600 text-lg">🚚</span> {t.freeDelivery} لجميع المحافظات
+                                        </div>
+                                        <button onClick={() => addToCart(selectedProduct)} className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-3.5 rounded-full font-bold shadow-md transition transform active:scale-95 text-lg">
+                                            {t.addCart}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Cart Drawer */}
+                    {isCartOpen && !isCheckoutOpen && (
+                        <div className="fixed inset-0 z-[130] flex justify-end">
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
+                            <div className="relative w-full max-w-md bg-gray-50 h-full shadow-2xl flex flex-col animate-slide-up sm:animate-fade-in">
+                                <div className="bg-white p-4 border-b border-gray-200 flex justify-between items-center shadow-sm">
+                                    <h2 className="text-xl font-black text-gray-900">{t.cart} ({cart.reduce((a,c)=>a+c.qty,0)})</h2>
+                                    <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-red-500 font-bold text-xl">✕</button>
+                                </div>
+                                
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
                                     {cart.length === 0 ? (
-                                        <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                                            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
-                                            <p className="font-bold text-lg">{t.emptyCart}</p>
+                                        <div className="text-center py-20 text-gray-500">
+                                            <h3 className="text-xl font-bold">{t.emptyCart}</h3>
                                         </div>
                                     ) : (
                                         cart.map(item => (
-                                            <div key={item.id} className="flex gap-4 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
-                                                <img src={item.imageUrl} className="w-20 h-20 rounded-[1rem] object-cover bg-slate-50" />
-                                                <div className="flex-1 flex flex-col justify-between">
-                                                    <h4 className="font-bold text-sm text-slate-800 line-clamp-2">{item.name}</h4>
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <span className="font-black text-indigo-600">{Number(item.price).toLocaleString()} <span className="text-[10px]">{t.currency}</span></span>
-                                                        <div className="flex items-center gap-3 bg-slate-50 border rounded-lg px-2 py-1">
-                                                            <button onClick={()=>updateQty(item.id, -1)} className="text-slate-500 font-bold px-2 hover:text-red-500">-</button>
-                                                            <span className="font-black text-sm w-4 text-center">{item.qty}</span>
-                                                            <button onClick={()=>updateQty(item.id, 1)} className="text-slate-500 font-bold px-2 hover:text-indigo-600">+</button>
-                                                        </div>
+                                            <div key={item.id} className="flex gap-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                                <div className="w-20 h-20 bg-gray-50 rounded flex-shrink-0">
+                                                    <img src={item.imageUrl} className="w-full h-full object-contain mix-blend-multiply" />
+                                                </div>
+                                                <div className="flex-1 flex flex-col">
+                                                    <h4 className="font-bold text-sm text-gray-800 line-clamp-2">{item.name}</h4>
+                                                    <div className="text-amazon-orange font-black text-sm my-1">{Number(item.price).toLocaleString()} {t.currency}</div>
+                                                    <div className="flex items-center gap-3 bg-gray-100 rounded px-2 py-1 w-fit mt-auto">
+                                                        <button onClick={()=>updateQty(item.id, -1)} className="text-gray-600 font-black hover:text-red-500 px-2">-</button>
+                                                        <span className="font-bold text-sm">{item.qty}</span>
+                                                        <button onClick={()=>updateQty(item.id, 1)} className="text-gray-600 font-black hover:text-blue-600 px-2">+</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -351,14 +422,14 @@
                                     )}
                                 </div>
 
-                                <div className="p-6 border-t bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <span className="font-bold text-slate-500 text-lg">{t.total}:</span>
-                                        <span className="text-3xl font-black text-slate-900">{cartTotal.toLocaleString()} <span className="text-sm text-slate-500">{t.currency}</span></span>
+                                <div className="bg-white p-4 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="font-bold text-gray-600">{t.total}:</span>
+                                        <span className="text-2xl font-black text-gray-900">{cartTotal.toLocaleString()} {t.currency}</span>
                                     </div>
                                     <button 
                                         onClick={() => { if(cart.length>0) setIsCheckoutOpen(true); }} 
-                                        className={`w-full py-4 rounded-2xl font-black text-lg transition-all shadow-lg ${cart.length > 0 ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+                                        className={`w-full py-3.5 rounded-full font-bold shadow-md transition ${cart.length > 0 ? 'bg-amazon-yellow hover:bg-amazon-orange text-black' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
                                         {t.checkout}
                                     </button>
                                 </div>
@@ -368,33 +439,28 @@
 
                     {/* Checkout Modal */}
                     {isCheckoutOpen && (
-                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsCheckoutOpen(false)}></div>
-                            <div className="relative w-full max-w-lg bg-white rounded-[2rem] shadow-2xl flex flex-col animate-pop overflow-hidden">
-                                <div className="bg-slate-900 p-6 text-white text-center relative">
-                                    <h2 className="text-2xl font-black relative z-10">{t.checkoutTitle}</h2>
-                                    <button onClick={() => setIsCheckoutOpen(false)} className="absolute top-6 left-6 text-white/50 hover:text-white transition z-10">✕</button>
-                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/30 blur-3xl rounded-full"></div>
+                        <div className="fixed inset-0 z-[140] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsCheckoutOpen(false)}></div>
+                            <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col animate-pop overflow-hidden">
+                                <div className="bg-gray-100 p-4 border-b flex justify-between items-center">
+                                    <h2 className="text-lg font-black text-gray-800">{t.checkoutTitle}</h2>
+                                    <button onClick={() => setIsCheckoutOpen(false)} className="text-gray-500 hover:text-red-500 font-bold">✕</button>
                                 </div>
-                                <form onSubmit={handleOrderSubmit} className="p-6 sm:p-8 space-y-5 bg-slate-50">
+                                <form onSubmit={handleOrderSubmit} className="p-6 space-y-4">
                                     <div>
-                                        <label className="text-sm font-bold text-slate-600 mb-2 block">{t.cName} <span className="text-red-500">*</span></label>
-                                        <input required type="text" className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:ring-2 ring-indigo-500 transition" placeholder="مثال: أحمد محمد..." value={orderForm.name} onChange={e=>setOrderForm({...orderForm, name:e.target.value})} />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-bold text-slate-600 mb-2 block">{t.cAddress} <span className="text-red-500">*</span></label>
-                                        <input required type="text" className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:ring-2 ring-indigo-500 transition" placeholder={lang === 'ku' ? "نموونە: کەرکووک، ڕێگای بەغداد..." : "مثال: كركوك، طريق بغداد..."} value={orderForm.address} onChange={e=>setOrderForm({...orderForm, address:e.target.value})} />
+                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cName}</label>
+                                        <input required type="text" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2" value={orderForm.name} onChange={e=>setOrderForm({...orderForm, name:e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-bold text-slate-600 mb-2 block">{t.cNotes}</label>
-                                        <textarea rows="3" className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:ring-2 ring-indigo-500 transition resize-none" placeholder="رقم الهاتف، تفاصيل إضافية..." value={orderForm.notes} onChange={e=>setOrderForm({...orderForm, notes:e.target.value})}></textarea>
+                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cAddress}</label>
+                                        <input required type="text" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2" value={orderForm.address} onChange={e=>setOrderForm({...orderForm, address:e.target.value})} />
                                     </div>
-                                    <div className="pt-4 border-t border-slate-200 flex justify-between items-center mb-4">
-                                        <span className="font-bold text-slate-500">{t.total}:</span>
-                                        <span className="text-2xl font-black text-indigo-600">{cartTotal.toLocaleString()} {t.currency}</span>
+                                    <div>
+                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cNotes}</label>
+                                        <textarea rows="2" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2 resize-none" value={orderForm.notes} onChange={e=>setOrderForm({...orderForm, notes:e.target.value})}></textarea>
                                     </div>
-                                    <button type="submit" className="w-full bg-slate-900 hover:bg-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl transition-all">
-                                        {t.confirmOrder}
+                                    <button type="submit" className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-3 rounded-full font-bold shadow-md mt-4">
+                                        {t.confirmOrder} ({cartTotal.toLocaleString()} {t.currency})
                                     </button>
                                 </form>
                             </div>
@@ -403,15 +469,13 @@
 
                     {/* Success Modal */}
                     {isSuccessOpen && (
-                        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-                            <div className="relative w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-8 text-center animate-pop">
-                                <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                </div>
-                                <h2 className="text-2xl font-black text-slate-800 mb-2">{t.successMsg}</h2>
-                                <p className="text-slate-500 font-bold mb-8">{t.successSub}</p>
-                                <button onClick={() => { setIsSuccessOpen(false); setIsCartOpen(false); }} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black shadow-lg hover:bg-slate-800 transition">
+                        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+                            <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-8 text-center animate-pop">
+                                <div className="text-5xl mb-4">✅</div>
+                                <h2 className="text-xl font-black text-gray-800 mb-2">{t.successMsg}</h2>
+                                <p className="text-gray-500 font-bold mb-6 text-sm">{t.successSub}</p>
+                                <button onClick={() => { setIsSuccessOpen(false); setIsCartOpen(false); }} className="w-full bg-amazon hover:bg-amazon-light text-white py-3 rounded-full font-bold shadow-md transition">
                                     {t.backToHome}
                                 </button>
                             </div>
@@ -433,40 +497,32 @@
             };
 
             return (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div className="lg:col-span-5">
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 sticky top-24">
-                            <h2 className="text-2xl font-black mb-6 text-slate-800 flex items-center gap-3">
-                                <span className="w-10 h-10 bg-indigo-100 text-indigo-600 flex items-center justify-center rounded-xl">✚</span>
-                                {t.addProduct}
-                            </h2>
-                            <form onSubmit={handleAdd} className="space-y-5">
-                                <div><label className="text-xs font-bold text-slate-500 mb-1 block">{t.pName}</label><input required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:bg-white transition" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} /></div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">{t.pPrice}</label><input required type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:bg-white transition" value={form.price} onChange={e=>setForm({...form, price:e.target.value})} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">{t.pCat}</label><select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:bg-white transition" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}>{CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+                <div className="p-4 mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow border border-gray-200 self-start">
+                            <h2 className="text-xl font-black mb-4 text-gray-800">{t.addProduct}</h2>
+                            <form onSubmit={handleAdd} className="space-y-4">
+                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pName}</label><input required className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} /></div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pPrice}</label><input required type="number" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.price} onChange={e=>setForm({...form, price:e.target.value})} /></div>
+                                    <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pCat}</label><select className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}>{CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}</select></div>
                                 </div>
-                                <div><label className="text-xs font-bold text-slate-500 mb-1 block">{t.pImg}</label><input required type="url" dir="ltr" placeholder="https://" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:bg-white transition" value={form.imageUrl} onChange={e=>setForm({...form, imageUrl:e.target.value})} /></div>
-                                <div><label className="text-xs font-bold text-slate-500 mb-1 block">{t.pDesc}</label><textarea required rows="4" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-indigo-500 focus:bg-white transition resize-none" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}></textarea></div>
-                                <button type="submit" className="w-full bg-slate-900 hover:bg-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-lg transition-all">{t.publish}</button>
+                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pImg}</label><input required type="url" dir="ltr" placeholder="https://" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.imageUrl} onChange={e=>setForm({...form, imageUrl:e.target.value})} /></div>
+                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pDesc}</label><textarea required rows="3" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange resize-none" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}></textarea></div>
+                                <button type="submit" className="w-full bg-amazon hover:bg-amazon-light text-white py-2 rounded font-bold shadow">{t.publish}</button>
                             </form>
                         </div>
-                    </div>
-                    <div className="lg:col-span-7">
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-black text-slate-800">{t.adminTitle}</h2>
-                                <span className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-sm font-bold">العدد: {products.length}</span>
-                            </div>
-                            <div className="space-y-4">
+                        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-200">
+                            <h2 className="text-xl font-black mb-4 text-gray-800">{t.adminTitle} ({products.length})</h2>
+                            <div className="space-y-3">
                                 {products.map(p => (
-                                    <div key={p.id} className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                        <img src={p.imageUrl} className="w-16 h-16 rounded-xl object-cover bg-white" />
+                                    <div key={p.id} className="flex items-center gap-4 border border-gray-100 p-3 rounded hover:bg-gray-50">
+                                        <img src={p.imageUrl} className="w-12 h-12 rounded object-contain bg-white" />
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-lg mb-1">{p.name}</h4>
-                                            <span className="text-indigo-600 font-black">{Number(p.price).toLocaleString()} {t.currency}</span>
+                                            <h4 className="font-bold text-sm line-clamp-1">{p.name}</h4>
+                                            <span className="text-amazon-orange font-black text-sm">{Number(p.price).toLocaleString()} {t.currency}</span>
                                         </div>
-                                        <button onClick={() => { if(window.confirm('حذف؟')) db.ref(`products/${p.id}`).remove(); }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">حذف</button>
+                                        <button onClick={() => { if(window.confirm('دڵنیای لە سڕینەوەی ئەم کاڵایە؟')) db.ref(`products/${p.id}`).remove(); }} className="text-red-500 font-bold text-sm bg-red-50 px-3 py-1 rounded hover:bg-red-100">حذف / سڕینەوە</button>
                                     </div>
                                 ))}
                             </div>
