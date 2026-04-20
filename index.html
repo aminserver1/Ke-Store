@@ -25,7 +25,7 @@
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                        pop: { '0%': { transform: 'scale(0.8)' }, '100%': { transform: 'scale(1)' } }
+                        pop: { '0%': { transform: 'scale(0.95)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
                     }
                 }
             }
@@ -42,9 +42,10 @@
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: 900; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15); }
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e5e7eb; }
+        .product-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #febd69; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden selection:bg-amazon-orange selection:text-white">
@@ -53,9 +54,10 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Firebase Config ---
+        // --- Firebase Config (Fixed authDomain) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDirc0CpBTWr5gxtZQv4ASZv8VRPP2QT90",
+            authDomain: "kurdtoolserver.firebaseapp.com", // <-- ئەمە کێشەکە بوو کە چارەسەر کرا
             databaseURL: "https://kurdtoolserver-default-rtdb.firebaseio.com/",
             projectId: "kurdtoolserver",
             storageBucket: "kurdtoolserver.appspot.com",
@@ -69,7 +71,6 @@
         const db = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         
-        // Always prompt for account selection so "Click to login" is seamless
         googleProvider.setCustomParameters({ prompt: 'select_account' });
 
         const SUPER_ADMIN = "kooora.taqana@gmail.com";
@@ -88,7 +89,7 @@
                 cNotes: "ملاحظات للمندوب", confirmOrder: "تأكيد الطلب الآن", successMsg: "تم استلام طلبك بنجاح! 🎉",
                 successSub: "سيقوم فريقنا بالتواصل معك قريباً.", backToHome: "الاستمرار في التسوق",
                 addedToCart: "تمت الإضافة للعربة!", freeDelivery: "توصيل مجاني", productDetails: "تفاصيل المنتج",
-                buyNow: "اشترِ الآن", greeting: "مرحباً", account: "الحساب"
+                buyNow: "اشترِ الآن", greeting: "مرحباً", account: "الحساب", outOfStock: "نفذت الكمية"
             },
             ku: {
                 home: "سەرەکی", login: "چوونەژوورەوە", logout: "دەرچوون",
@@ -101,7 +102,7 @@
                 cNotes: "تێبینی بۆ گەیاندنکار", confirmOrder: "تأکیدکردنەوەی داواکاری", successMsg: "داواکارییەکەت وەرگیرا! 🎉",
                 successSub: "بەم زووانە پەیوەندیت پێوە دەکەین.", backToHome: "گەڕانەوە بۆ فرۆشگا",
                 addedToCart: "خرایە سەبەتەکەوە!", freeDelivery: "گەیاندنی خۆڕایی", productDetails: "وردەکاری کاڵا",
-                buyNow: "ئێستا بیکڕە", greeting: "سڵاو", account: "هەژمار"
+                buyNow: "ئێستا بیکڕە", greeting: "سڵاو", account: "هەژمار", outOfStock: "نەماوە"
             }
         };
 
@@ -114,7 +115,7 @@
             const [isCartOpen, setIsCartOpen] = useState(false);
             const [search, setSearch] = useState('');
             const [activeCat, setActiveCat] = useState('الكل');
-            const [selectedProduct, setSelectedProduct] = useState(null); // For product details modal
+            const [selectedProduct, setSelectedProduct] = useState(null); 
             
             const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
             const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -139,7 +140,6 @@
                 return () => { unsub(); ref.off(); };
             }, []);
 
-            // Smoother Login with Error Alert
             const handleLogin = async () => {
                 try {
                     await auth.signInWithPopup(googleProvider);
@@ -162,7 +162,7 @@
                     setCart([...cart, { ...product, qty: 1 }]);
                 }
                 showToast(t.addedToCart);
-                setSelectedProduct(null); // Close modal if open
+                setSelectedProduct(null); 
             };
 
             const updateQty = (id, amount) => {
@@ -194,7 +194,6 @@
                 return matchCat && matchSearch;
             });
 
-            // Random stars generator for demo
             const renderStars = () => {
                 return (
                     <div className="flex items-center text-amazon-orange text-sm mb-1">
@@ -208,33 +207,30 @@
                 <div className={`flex flex-col min-h-screen ${lang === 'ku' ? 'text-right' : 'text-right'}`} dir="rtl">
                     {/* Toast */}
                     {toastMsg && (
-                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[150] bg-green-600 text-white px-6 py-3 rounded-md shadow-2xl font-bold animate-slide-up flex items-center gap-2">
+                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[150] bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold animate-slide-up flex items-center gap-2">
                             ✓ {toastMsg}
                         </div>
                     )}
 
-                    {/* Top Navbar - Amazon Style */}
+                    {/* Top Navbar */}
                     <header className="bg-amazon text-white sticky top-0 z-50">
                         <div className="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
-                            {/* Logo */}
                             <div onClick={() => setPage('home')} className="flex items-center gap-2 cursor-pointer border border-transparent hover:border-white p-1 rounded">
                                 <span className="text-2xl font-black tracking-tighter text-amazon-orange">KE<span className="text-white font-bold">STORE</span></span>
                             </div>
 
-                            {/* Middle Search Bar */}
-                            <div className="flex-1 hidden md:flex h-10 rounded-md overflow-hidden bg-white group focus-within:ring-2 ring-amazon-orange">
-                                <select className="bg-gray-100 text-gray-700 px-2 text-sm border-none outline-none border-r border-gray-300 cursor-pointer hover:bg-gray-200">
+                            <div className="flex-1 hidden md:flex h-11 rounded-md overflow-hidden bg-white group focus-within:ring-4 ring-amazon-orange/50 transition-shadow">
+                                <select className="bg-gray-100 text-gray-700 px-3 text-sm border-none outline-none border-r border-gray-300 cursor-pointer hover:bg-gray-200 font-bold">
                                     {CATEGORIES.map(c=><option key={c}>{c === 'الكل' ? (lang==='ku'?'هەمووی':'الكل') : c}</option>)}
                                 </select>
                                 <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none" />
-                                <button className="bg-amazon-yellow hover:bg-amazon-orange text-black px-5 transition-colors">
+                                <button className="bg-amazon-yellow hover:bg-amazon-orange text-black px-6 transition-colors flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                                 </button>
                             </div>
 
-                            {/* Right Actions */}
                             <div className="flex items-center gap-2 sm:gap-4">
-                                <button onClick={() => setLang(lang === 'ar' ? 'ku' : 'ar')} className="flex items-center gap-1 font-bold text-sm hover:text-gray-300">
+                                <button onClick={() => setLang(lang === 'ar' ? 'ku' : 'ar')} className="flex items-center gap-1 font-bold text-sm hover:text-gray-300 border border-transparent hover:border-white p-2 rounded">
                                     🌐 {t.lang}
                                 </button>
 
@@ -244,18 +240,17 @@
                                             <span className="text-xs text-gray-300">{t.greeting}, {user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
                                             <span className="font-bold flex items-center gap-1">
                                                 {t.account}
-                                                {/* Hidden Admin Entry Point */}
                                                 {isAdmin && (
-                                                    <span onClick={(e) => { e.stopPropagation(); setPage(page === 'admin' ? 'home' : 'admin'); }} className="text-amazon-orange hover:text-white" title="Settings">⚙️</span>
+                                                    <span onClick={(e) => { e.stopPropagation(); setPage(page === 'admin' ? 'home' : 'admin'); }} className="text-amazon-orange hover:text-white ml-1" title="إدارة المنتجات">⚙️</span>
                                                 )}
                                             </span>
                                         </div>
-                                        <button onClick={() => auth.signOut()} className="text-xs text-gray-400 hover:text-white underline">{t.logout}</button>
+                                        <button onClick={() => auth.signOut()} className="text-xs text-red-400 hover:text-red-300 font-bold p-1">{t.logout}</button>
                                     </div>
                                 ) : (
                                     <button onClick={handleLogin} className="flex flex-col text-sm cursor-pointer border border-transparent hover:border-white p-1 rounded">
-                                        <span className="text-xs text-gray-300">{t.greeting}, تسجيل الدخول</span>
-                                        <span className="font-bold">{t.account} & القوائم</span>
+                                        <span className="text-xs text-gray-300">{t.greeting}, {t.login}</span>
+                                        <span className="font-bold">{t.account}</span>
                                     </button>
                                 )}
 
@@ -271,63 +266,58 @@
                             </div>
                         </div>
 
-                        {/* Mobile Search Bar */}
                         <div className="md:hidden px-4 pb-3">
-                            <div className="flex h-10 rounded-md overflow-hidden bg-white">
+                            <div className="flex h-11 rounded-md overflow-hidden bg-white shadow-inner focus-within:ring-2 ring-amazon-orange">
                                 <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none" />
-                                <button className="bg-amazon-yellow text-black px-4"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+                                <button className="bg-amazon-yellow text-black px-5"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
                             </div>
                         </div>
 
-                        {/* Category Sub-nav */}
-                        <div className="bg-amazon-light text-white text-sm px-4 py-1.5 overflow-x-auto hide-scroll flex gap-4 whitespace-nowrap">
+                        <div className="bg-amazon-light text-white text-sm px-4 py-2 overflow-x-auto hide-scroll flex gap-4 whitespace-nowrap shadow-md">
                             <button className="font-bold flex items-center gap-1">☰ الأقسام</button>
                             {CATEGORIES.map(cat => (
-                                <button key={cat} onClick={() => {setActiveCat(cat); setPage('home');}} className={`hover:border-white border border-transparent px-1 rounded transition-colors ${activeCat === cat ? 'font-bold text-amazon-yellow' : ''}`}>
+                                <button key={cat} onClick={() => {setActiveCat(cat); setPage('home');}} className={`hover:border-white border border-transparent px-2 py-0.5 rounded transition-colors ${activeCat === cat ? 'font-black text-amazon-yellow bg-white/10' : ''}`}>
                                     {cat === 'الكل' ? (lang === 'ku' ? 'هەمووی' : 'الكل') : cat}
                                 </button>
                             ))}
                         </div>
                     </header>
 
-                    {/* Main Content */}
                     <main className="flex-1 w-full max-w-[1500px] mx-auto animate-fade-in pb-12">
                         {page === 'home' ? (
                             <div className="relative">
-                                {/* Hero Banner */}
                                 <div className="w-full h-[250px] sm:h-[350px] bg-gradient-to-r from-amazon-light to-blue-900 relative">
-                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
+                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-gray-100 to-transparent"></div>
-                                    <div className="relative z-10 px-6 pt-10 sm:pt-20 text-white max-w-xl mx-auto text-center drop-shadow-lg">
-                                        <h1 className="text-3xl sm:text-5xl font-black mb-2">{t.welcome} <span className="text-amazon-yellow">KESTORE</span></h1>
-                                        <p className="text-lg font-bold">{t.sub}</p>
+                                    <div className="relative z-10 px-6 pt-10 sm:pt-20 text-white max-w-xl mx-auto text-center drop-shadow-2xl">
+                                        <h1 className="text-4xl sm:text-6xl font-black mb-3">{t.welcome} <span className="text-amazon-yellow">KESTORE</span></h1>
+                                        <p className="text-lg sm:text-xl font-bold bg-black/30 inline-block px-4 py-1 rounded-full">{t.sub}</p>
                                     </div>
                                 </div>
 
-                                {/* Products Grid - Shifted up over the banner */}
-                                <div className="px-4 -mt-20 sm:-mt-32 relative z-20">
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
+                                <div className="px-4 -mt-20 sm:-mt-28 relative z-20">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
                                         {filteredProducts.length === 0 ? (
-                                            <div className="col-span-full text-center py-20 bg-white rounded-lg shadow">
-                                                <h3 className="font-bold text-xl text-gray-500">لا توجد منتجات / کاڵا نەدۆزرایەوە</h3>
+                                            <div className="col-span-full text-center py-20 bg-white rounded-xl shadow-lg">
+                                                <h3 className="font-bold text-2xl text-gray-400">لا توجد منتجات / کاڵا نەدۆزرایەوە</h3>
                                             </div>
                                         ) : (
                                             filteredProducts.map(p => (
-                                                <div key={p.id} onClick={() => setSelectedProduct(p)} className="product-card bg-white cursor-pointer rounded-lg overflow-hidden flex flex-col border border-gray-200">
-                                                    <div className="w-full pt-[100%] relative bg-white">
-                                                        <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-4 mix-blend-multiply" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
+                                                <div key={p.id} onClick={() => setSelectedProduct(p)} className="product-card bg-white cursor-pointer rounded-xl overflow-hidden flex flex-col group relative">
+                                                    <div className="w-full pt-[100%] relative bg-gray-50 flex items-center justify-center overflow-hidden">
+                                                        <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-6 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
                                                     </div>
-                                                    <div className="p-3 flex-1 flex flex-col border-t border-gray-100">
-                                                        <h3 className="font-bold text-sm sm:text-base text-gray-900 mb-1 line-clamp-2 hover:text-amazon-orange">{p.name}</h3>
+                                                    <div className="p-4 flex-1 flex flex-col bg-white">
+                                                        <h3 className="font-bold text-base text-gray-900 mb-2 line-clamp-2 group-hover:text-amazon-orange transition-colors">{p.name}</h3>
                                                         {renderStars()}
-                                                        <div className="mt-1 mb-2">
-                                                            <span className="text-xl font-black text-gray-900">{Number(p.price).toLocaleString()}</span>
-                                                            <span className="text-xs text-gray-600 mr-1">{t.currency}</span>
+                                                        <div className="mt-2 mb-3">
+                                                            <span className="text-2xl font-black text-gray-900">{Number(p.price).toLocaleString()}</span>
+                                                            <span className="text-sm font-bold text-gray-500 mr-1">{t.currency}</span>
                                                         </div>
-                                                        <div className="text-xs text-green-600 font-bold mb-3 flex items-center gap-1">
+                                                        <div className="text-xs text-green-600 font-bold mb-4 flex items-center gap-1 bg-green-50 w-fit px-2 py-1 rounded">
                                                             ✓ {t.freeDelivery}
                                                         </div>
-                                                        <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-2 rounded-full text-sm font-bold shadow-sm transition-colors">
+                                                        <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-2.5 rounded-full text-sm font-black shadow-md hover:shadow-lg transition-all active:scale-95">
                                                             {t.addCart}
                                                         </button>
                                                     </div>
@@ -342,43 +332,45 @@
                         )}
                     </main>
 
-                    {/* Footer */}
-                    <footer className="bg-amazon-light text-white text-center py-8 mt-auto border-t-4 border-amazon-orange">
+                    <footer className="bg-amazon-light text-white text-center py-10 mt-auto border-t-4 border-amazon-orange">
                         <div className="max-w-7xl mx-auto px-4">
-                            <h2 className="text-xl font-black mb-4">KE <span className="text-amazon-yellow">STORE</span></h2>
-                            <p className="text-gray-400 text-sm">© 2026 جميع الحقوق محفوظة | هەموو مافێک پارێزراوە</p>
+                            <h2 className="text-2xl font-black mb-4">KE <span className="text-amazon-yellow">STORE</span></h2>
+                            <p className="text-gray-400 text-sm font-semibold">© 2026 جميع الحقوق محفوظة | هەموو مافێک پارێزراوە</p>
                         </div>
                     </footer>
 
-                    {/* Product Details Modal */}
+                    {/* Enhanced Product Details Modal (Pop-up) */}
                     {selectedProduct && (
-                        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedProduct(null)}></div>
-                            <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col md:flex-row overflow-hidden animate-pop max-h-[90vh]">
-                                <button onClick={() => setSelectedProduct(null)} className="absolute top-4 left-4 z-10 w-8 h-8 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center font-bold transition">✕</button>
+                        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6">
+                            <div className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" onClick={() => setSelectedProduct(null)}></div>
+                            <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden animate-pop max-h-[90vh]">
+                                <button onClick={() => setSelectedProduct(null)} className="absolute top-4 left-4 z-20 w-10 h-10 bg-white/80 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center font-black shadow-lg transition-colors border border-gray-200">✕</button>
                                 
-                                {/* Image Section */}
-                                <div className="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 border-l border-gray-200">
-                                    <img src={selectedProduct.imageUrl} className="max-h-[300px] md:max-h-[500px] object-contain mix-blend-multiply" />
+                                <div className="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 md:p-12 border-l border-gray-100 relative">
+                                    <img src={selectedProduct.imageUrl} className="max-h-[350px] md:max-h-[500px] w-full object-contain mix-blend-multiply drop-shadow-xl" />
                                 </div>
                                 
-                                {/* Info Section */}
-                                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
-                                    <span className="text-sm font-bold text-amazon-orange mb-2">{selectedProduct.category}</span>
-                                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">{selectedProduct.name}</h2>
+                                <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col overflow-y-auto">
+                                    <span className="text-sm font-black text-white bg-amazon-orange w-fit px-3 py-1 rounded-full mb-4 shadow-sm">{selectedProduct.category}</span>
+                                    <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-3 leading-tight">{selectedProduct.name}</h2>
                                     {renderStars()}
-                                    <div className="border-b border-gray-200 my-4"></div>
-                                    <div className="mb-4">
-                                        <span className="text-3xl font-black text-gray-900">{Number(selectedProduct.price).toLocaleString()}</span>
-                                        <span className="text-sm text-gray-500 mr-2">{t.currency}</span>
-                                    </div>
-                                    <p className="text-gray-600 text-sm leading-relaxed mb-6 font-semibold whitespace-pre-wrap">{selectedProduct.description}</p>
                                     
-                                    <div className="mt-auto space-y-3">
-                                        <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3 text-sm font-bold text-gray-700 border border-gray-200">
-                                            <span className="text-green-600 text-lg">🚚</span> {t.freeDelivery} لجميع المحافظات
+                                    <div className="my-6">
+                                        <span className="text-4xl font-black text-gray-900">{Number(selectedProduct.price).toLocaleString()}</span>
+                                        <span className="text-lg font-bold text-gray-500 mr-2">{t.currency}</span>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-6">
+                                        <h4 className="font-black text-gray-800 mb-2">{t.productDetails}:</h4>
+                                        <p className="text-gray-600 text-base leading-relaxed font-semibold whitespace-pre-wrap">{selectedProduct.description}</p>
+                                    </div>
+                                    
+                                    <div className="mt-auto space-y-4 pt-4">
+                                        <div className="bg-green-50 p-4 rounded-xl flex items-center gap-3 text-sm font-black text-green-700 border border-green-100">
+                                            <span className="text-2xl">🚚</span> {t.freeDelivery} لجميع المحافظات / گەیاندن بۆ هەموو شارەکان
                                         </div>
-                                        <button onClick={() => addToCart(selectedProduct)} className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-3.5 rounded-full font-bold shadow-md transition transform active:scale-95 text-lg">
+                                        <button onClick={() => addToCart(selectedProduct)} className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-4 rounded-full font-black shadow-xl hover:shadow-2xl transition-all transform active:scale-95 text-xl flex justify-center items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                                             {t.addCart}
                                         </button>
                                     </div>
@@ -391,30 +383,36 @@
                     {isCartOpen && !isCheckoutOpen && (
                         <div className="fixed inset-0 z-[130] flex justify-end">
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
-                            <div className="relative w-full max-w-md bg-gray-50 h-full shadow-2xl flex flex-col animate-slide-up sm:animate-fade-in">
-                                <div className="bg-white p-4 border-b border-gray-200 flex justify-between items-center shadow-sm">
-                                    <h2 className="text-xl font-black text-gray-900">{t.cart} ({cart.reduce((a,c)=>a+c.qty,0)})</h2>
-                                    <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-red-500 font-bold text-xl">✕</button>
+                            <div className="relative w-full max-w-md bg-gray-50 h-full shadow-2xl flex flex-col animate-slide-up sm:animate-fade-in border-l border-gray-200">
+                                <div className="bg-white p-5 border-b border-gray-200 flex justify-between items-center shadow-sm">
+                                    <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                                        {t.cart} ({cart.reduce((a,c)=>a+c.qty,0)})
+                                    </h2>
+                                    <button onClick={() => setIsCartOpen(false)} className="w-8 h-8 flex justify-center items-center rounded-full bg-gray-100 hover:bg-red-500 hover:text-white font-bold transition-colors text-lg">✕</button>
                                 </div>
                                 
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
                                     {cart.length === 0 ? (
-                                        <div className="text-center py-20 text-gray-500">
-                                            <h3 className="text-xl font-bold">{t.emptyCart}</h3>
+                                        <div className="text-center py-32 text-gray-400 flex flex-col items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mb-4"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                                            <h3 className="text-2xl font-black">{t.emptyCart}</h3>
                                         </div>
                                     ) : (
                                         cart.map(item => (
-                                            <div key={item.id} className="flex gap-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                                                <div className="w-20 h-20 bg-gray-50 rounded flex-shrink-0">
+                                            <div key={item.id} className="flex gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="w-24 h-24 bg-gray-50 rounded-lg flex-shrink-0 border border-gray-100 p-2">
                                                     <img src={item.imageUrl} className="w-full h-full object-contain mix-blend-multiply" />
                                                 </div>
                                                 <div className="flex-1 flex flex-col">
                                                     <h4 className="font-bold text-sm text-gray-800 line-clamp-2">{item.name}</h4>
-                                                    <div className="text-amazon-orange font-black text-sm my-1">{Number(item.price).toLocaleString()} {t.currency}</div>
-                                                    <div className="flex items-center gap-3 bg-gray-100 rounded px-2 py-1 w-fit mt-auto">
-                                                        <button onClick={()=>updateQty(item.id, -1)} className="text-gray-600 font-black hover:text-red-500 px-2">-</button>
-                                                        <span className="font-bold text-sm">{item.qty}</span>
-                                                        <button onClick={()=>updateQty(item.id, 1)} className="text-gray-600 font-black hover:text-blue-600 px-2">+</button>
+                                                    <div className="text-amazon-orange font-black text-lg my-1">{Number(item.price).toLocaleString()} {t.currency}</div>
+                                                    <div className="flex items-center justify-between mt-auto">
+                                                        <div className="flex items-center gap-4 bg-gray-100 rounded-full px-3 py-1 border border-gray-200">
+                                                            <button onClick={()=>updateQty(item.id, -1)} className="text-gray-600 font-black hover:text-red-500 text-lg">-</button>
+                                                            <span className="font-black text-sm">{item.qty}</span>
+                                                            <button onClick={()=>updateQty(item.id, 1)} className="text-gray-600 font-black hover:text-blue-600 text-lg">+</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -422,14 +420,14 @@
                                     )}
                                 </div>
 
-                                <div className="bg-white p-4 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="font-bold text-gray-600">{t.total}:</span>
-                                        <span className="text-2xl font-black text-gray-900">{cartTotal.toLocaleString()} {t.currency}</span>
+                                <div className="bg-white p-6 border-t border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="font-black text-gray-500 text-lg">{t.total}:</span>
+                                        <span className="text-3xl font-black text-gray-900">{cartTotal.toLocaleString()} {t.currency}</span>
                                     </div>
                                     <button 
                                         onClick={() => { if(cart.length>0) setIsCheckoutOpen(true); }} 
-                                        className={`w-full py-3.5 rounded-full font-bold shadow-md transition ${cart.length > 0 ? 'bg-amazon-yellow hover:bg-amazon-orange text-black' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
+                                        className={`w-full py-4 rounded-full font-black shadow-lg transition-all text-lg ${cart.length > 0 ? 'bg-amazon-yellow hover:bg-amazon-orange text-black hover:shadow-xl transform active:scale-95' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
                                         {t.checkout}
                                     </button>
                                 </div>
@@ -440,26 +438,26 @@
                     {/* Checkout Modal */}
                     {isCheckoutOpen && (
                         <div className="fixed inset-0 z-[140] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsCheckoutOpen(false)}></div>
-                            <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col animate-pop overflow-hidden">
-                                <div className="bg-gray-100 p-4 border-b flex justify-between items-center">
-                                    <h2 className="text-lg font-black text-gray-800">{t.checkoutTitle}</h2>
-                                    <button onClick={() => setIsCheckoutOpen(false)} className="text-gray-500 hover:text-red-500 font-bold">✕</button>
+                            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsCheckoutOpen(false)}></div>
+                            <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl flex flex-col animate-pop overflow-hidden">
+                                <div className="bg-gray-50 p-5 border-b border-gray-100 flex justify-between items-center">
+                                    <h2 className="text-xl font-black text-gray-800">{t.checkoutTitle}</h2>
+                                    <button onClick={() => setIsCheckoutOpen(false)} className="text-gray-400 hover:text-red-500 font-bold bg-white w-8 h-8 rounded-full shadow-sm border flex justify-center items-center">✕</button>
                                 </div>
-                                <form onSubmit={handleOrderSubmit} className="p-6 space-y-4">
+                                <form onSubmit={handleOrderSubmit} className="p-6 space-y-5">
                                     <div>
-                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cName}</label>
-                                        <input required type="text" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2" value={orderForm.name} onChange={e=>setOrderForm({...orderForm, name:e.target.value})} />
+                                        <label className="text-sm font-black text-gray-700 mb-2 block">{t.cName}</label>
+                                        <input required type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amazon-orange focus:bg-white outline-none px-4 py-3 font-semibold transition-all" value={orderForm.name} onChange={e=>setOrderForm({...orderForm, name:e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cAddress}</label>
-                                        <input required type="text" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2" value={orderForm.address} onChange={e=>setOrderForm({...orderForm, address:e.target.value})} />
+                                        <label className="text-sm font-black text-gray-700 mb-2 block">{t.cAddress}</label>
+                                        <input required type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amazon-orange focus:bg-white outline-none px-4 py-3 font-semibold transition-all" value={orderForm.address} onChange={e=>setOrderForm({...orderForm, address:e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-bold text-gray-700 mb-1 block">{t.cNotes}</label>
-                                        <textarea rows="2" className="w-full bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amazon-orange outline-none px-3 py-2 resize-none" value={orderForm.notes} onChange={e=>setOrderForm({...orderForm, notes:e.target.value})}></textarea>
+                                        <label className="text-sm font-black text-gray-700 mb-2 block">{t.cNotes} (ئارەزوومەندانە)</label>
+                                        <textarea rows="3" className="w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amazon-orange focus:bg-white outline-none px-4 py-3 font-semibold transition-all resize-none" value={orderForm.notes} onChange={e=>setOrderForm({...orderForm, notes:e.target.value})}></textarea>
                                     </div>
-                                    <button type="submit" className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-3 rounded-full font-bold shadow-md mt-4">
+                                    <button type="submit" className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black py-4 rounded-full font-black shadow-lg hover:shadow-xl transform active:scale-95 transition-all mt-6 text-lg">
                                         {t.confirmOrder} ({cartTotal.toLocaleString()} {t.currency})
                                     </button>
                                 </form>
@@ -470,12 +468,14 @@
                     {/* Success Modal */}
                     {isSuccessOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-                            <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-8 text-center animate-pop">
-                                <div className="text-5xl mb-4">✅</div>
-                                <h2 className="text-xl font-black text-gray-800 mb-2">{t.successMsg}</h2>
-                                <p className="text-gray-500 font-bold mb-6 text-sm">{t.successSub}</p>
-                                <button onClick={() => { setIsSuccessOpen(false); setIsCartOpen(false); }} className="w-full bg-amazon hover:bg-amazon-light text-white py-3 rounded-full font-bold shadow-md transition">
+                            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+                            <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 text-center animate-pop">
+                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <span className="text-5xl">✅</span>
+                                </div>
+                                <h2 className="text-2xl font-black text-gray-800 mb-3">{t.successMsg}</h2>
+                                <p className="text-gray-500 font-bold mb-8 text-base">{t.successSub}</p>
+                                <button onClick={() => { setIsSuccessOpen(false); setIsCartOpen(false); }} className="w-full bg-amazon hover:bg-amazon-light text-white py-4 rounded-full font-black shadow-lg hover:shadow-xl transform active:scale-95 transition-all">
                                     {t.backToHome}
                                 </button>
                             </div>
@@ -485,7 +485,6 @@
             );
         };
 
-        // --- Admin Panel Component ---
         const AdminPanel = ({ db, products, t, CATEGORIES }) => {
             const [form, setForm] = useState({ name: '', price: '', imageUrl: '', description: '', category: 'إلكترونيات' });
 
@@ -497,32 +496,32 @@
             };
 
             return (
-                <div className="p-4 mt-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow border border-gray-200 self-start">
-                            <h2 className="text-xl font-black mb-4 text-gray-800">{t.addProduct}</h2>
-                            <form onSubmit={handleAdd} className="space-y-4">
-                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pName}</label><input required className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} /></div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pPrice}</label><input required type="number" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.price} onChange={e=>setForm({...form, price:e.target.value})} /></div>
-                                    <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pCat}</label><select className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}>{CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+                <div className="p-4 sm:p-8 mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-1 bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 self-start">
+                            <h2 className="text-2xl font-black mb-6 text-gray-800 border-b pb-4">{t.addProduct}</h2>
+                            <form onSubmit={handleAdd} className="space-y-5">
+                                <div><label className="text-sm font-black text-gray-700 block mb-2">{t.pName}</label><input required className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-amazon-orange font-semibold" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} /></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div><label className="text-sm font-black text-gray-700 block mb-2">{t.pPrice}</label><input required type="number" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-amazon-orange font-semibold" value={form.price} onChange={e=>setForm({...form, price:e.target.value})} /></div>
+                                    <div><label className="text-sm font-black text-gray-700 block mb-2">{t.pCat}</label><select className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-amazon-orange font-semibold" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}>{CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}</select></div>
                                 </div>
-                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pImg}</label><input required type="url" dir="ltr" placeholder="https://" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange" value={form.imageUrl} onChange={e=>setForm({...form, imageUrl:e.target.value})} /></div>
-                                <div><label className="text-xs font-bold text-gray-600 block mb-1">{t.pDesc}</label><textarea required rows="3" className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-amazon-orange resize-none" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}></textarea></div>
-                                <button type="submit" className="w-full bg-amazon hover:bg-amazon-light text-white py-2 rounded font-bold shadow">{t.publish}</button>
+                                <div><label className="text-sm font-black text-gray-700 block mb-2">{t.pImg}</label><input required type="url" dir="ltr" placeholder="https://" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-amazon-orange font-semibold" value={form.imageUrl} onChange={e=>setForm({...form, imageUrl:e.target.value})} /></div>
+                                <div><label className="text-sm font-black text-gray-700 block mb-2">{t.pDesc}</label><textarea required rows="4" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-amazon-orange font-semibold resize-none" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}></textarea></div>
+                                <button type="submit" className="w-full bg-amazon hover:bg-amazon-light text-white py-3.5 rounded-full font-black shadow-lg hover:shadow-xl transition-all text-lg mt-2">{t.publish}</button>
                             </form>
                         </div>
-                        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-200">
-                            <h2 className="text-xl font-black mb-4 text-gray-800">{t.adminTitle} ({products.length})</h2>
-                            <div className="space-y-3">
+                        <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100">
+                            <h2 className="text-2xl font-black mb-6 text-gray-800 border-b pb-4">{t.adminTitle} <span className="bg-amazon-orange text-white text-sm px-3 py-1 rounded-full">{products.length}</span></h2>
+                            <div className="space-y-4">
                                 {products.map(p => (
-                                    <div key={p.id} className="flex items-center gap-4 border border-gray-100 p-3 rounded hover:bg-gray-50">
-                                        <img src={p.imageUrl} className="w-12 h-12 rounded object-contain bg-white" />
+                                    <div key={p.id} className="flex items-center gap-4 border border-gray-100 p-4 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                                        <img src={p.imageUrl} className="w-16 h-16 rounded-lg object-contain bg-white border border-gray-100 p-1" />
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-sm line-clamp-1">{p.name}</h4>
-                                            <span className="text-amazon-orange font-black text-sm">{Number(p.price).toLocaleString()} {t.currency}</span>
+                                            <h4 className="font-bold text-base text-gray-800 line-clamp-1">{p.name}</h4>
+                                            <span className="text-amazon-orange font-black text-base">{Number(p.price).toLocaleString()} {t.currency}</span>
                                         </div>
-                                        <button onClick={() => { if(window.confirm('دڵنیای لە سڕینەوەی ئەم کاڵایە؟')) db.ref(`products/${p.id}`).remove(); }} className="text-red-500 font-bold text-sm bg-red-50 px-3 py-1 rounded hover:bg-red-100">حذف / سڕینەوە</button>
+                                        <button onClick={() => { if(window.confirm('دڵنیای لە سڕینەوەی ئەم کاڵایە؟')) db.ref(`products/${p.id}`).remove(); }} className="text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg hover:bg-red-100 border border-red-100 transition-colors">سڕینەوە</button>
                                     </div>
                                 ))}
                             </div>
