@@ -130,15 +130,13 @@
             const [toastMsg, setToastMsg] = useState('');
             const [orderForm, setOrderForm] = useState({ name: '', phone: '', address: '', notes: '' });
 
-            // Admin states
             const [adminTab, setAdminTab] = useState('orders');
             const [adminSearch, setAdminSearch] = useState('');
             const [orderSearchText, setOrderSearchText] = useState('');
-            // Add costPrice and deliveryFee to product form
             const [newProduct, setNewProduct] = useState({ name: '', price: '', costPrice: '', deliveryFee: 6000, imageUrl: '', description: '', category: 'إلكترونيات' });
             
             const [printingOrder, setPrintingOrder] = useState(null);
-            const [printType, setPrintType] = useState('invoice'); // 'invoice' or 'address'
+            const [printType, setPrintType] = useState('invoice'); 
 
             const t = TR[lang];
             let clickCount = useRef(0);
@@ -204,7 +202,6 @@
             };
 
             const cartTotalItemsPrice = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            // Get maximum delivery fee among cart items, default to 6000
             const cartDeliveryFee = cart.length > 0 ? Math.max(...cart.map(item => Number(item.deliveryFee) || 6000)) : 0;
             const cartGrandTotal = cartTotalItemsPrice + cartDeliveryFee;
 
@@ -218,7 +215,7 @@
                     items: cart,
                     cartTotal: cartTotalItemsPrice,
                     deliveryFee: cartDeliveryFee,
-                    total: cartGrandTotal, // Grand total
+                    total: cartGrandTotal, 
                     date: new Date().toISOString(),
                     status: 'pending'
                 });
@@ -233,12 +230,11 @@
             const searchTerms = search.toLowerCase().trim().split(/\s+/);
             const filteredProducts = products.filter(p => {
                 const matchCat = activeCat === 'الكل' || p.category === activeCat;
-                const searchString = `${p.name} ${p.description || ''} ${p.sku || p.id}`.toLowerCase();
+                const searchString = `${p.name || ''} ${p.description || ''} ${p.sku || p.id}`.toLowerCase();
                 const matchSearch = searchTerms.every(term => searchString.includes(term));
                 return matchCat && matchSearch;
             });
 
-            // Admin Actions
             const handleAddProduct = (e) => {
                 e.preventDefault();
                 const sku = 'ITM-' + Math.floor(1000 + Math.random() * 9000);
@@ -282,16 +278,15 @@
                 </div>
             );
 
-            // Calculations for Admin Dashboard
             const acceptedOrders = orders.filter(o => o.status === 'accepted');
-            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.cartTotal) || Number(o.total) || 0), 0);
+            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.total) || Number(o.cartTotal) || 0), 0);
             const totalProfitSum = acceptedOrders.reduce((acc, o) => {
                 let orderProfit = 0;
-                if(o.items) {
+                if(o.items && Array.isArray(o.items)) {
                     o.items.forEach(item => {
                         const sellingPrice = Number(item.price) || 0;
                         const costPrice = Number(item.costPrice) || 0;
-                        orderProfit += (sellingPrice - costPrice) * item.qty;
+                        orderProfit += (sellingPrice - costPrice) * (item.qty || 1);
                     });
                 }
                 return acc + orderProfit;
@@ -299,7 +294,6 @@
 
             return (
                 <div className={`flex flex-col min-h-screen ${lang === 'ku' ? 'text-right' : 'text-right'}`} dir="rtl">
-                    {/* Print Container */}
                     <div id="print-section" className="hidden bg-white p-8">
                         {printingOrder && printType === 'invoice' && (
                             <div className="max-w-3xl mx-auto border-2 border-gray-800 p-8 rounded-lg">
@@ -307,14 +301,14 @@
                                     <h1 className="text-4xl font-black mb-2">KESTORE</h1>
                                     <h2 className="text-2xl font-bold">فاتورة مبيعات / پسوڵەی فرۆشتن</h2>
                                     <div className="flex justify-between items-center mt-4 px-4 font-bold">
-                                        <p>{t.invoiceNo}: <span className="text-xl bg-gray-200 px-2 rounded">{printingOrder.invoiceId}</span></p>
-                                        <p>التاريخ / بەروار: {new Date(printingOrder.date).toLocaleString('ar-IQ')}</p>
+                                        <p>{t.invoiceNo}: <span className="text-xl bg-gray-200 px-2 rounded">{printingOrder.invoiceId || '---'}</span></p>
+                                        <p>التاريخ / بەروار: {printingOrder.date ? new Date(printingOrder.date).toLocaleString('ar-IQ') : '---'}</p>
                                     </div>
                                 </div>
                                 <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    <p className="mb-2"><strong className="text-lg">اسم الزبون / ناوی کڕیار:</strong> {printingOrder.customer.name}</p>
-                                    <p className="mb-2"><strong className="text-lg">رقم الهاتف / مۆبایل:</strong> {printingOrder.customer.phone || '---'}</p>
-                                    <p className="mb-2"><strong className="text-lg">العنوان / ناونیشان:</strong> {printingOrder.customer.address}</p>
+                                    <p className="mb-2"><strong className="text-lg">اسم الزبون / ناوی کڕیار:</strong> {printingOrder.customer && printingOrder.customer.name ? printingOrder.customer.name : '---'}</p>
+                                    <p className="mb-2"><strong className="text-lg">رقم الهاتف / مۆبایل:</strong> {printingOrder.customer && printingOrder.customer.phone ? printingOrder.customer.phone : '---'}</p>
+                                    <p className="mb-2"><strong className="text-lg">العنوان / ناونیشان:</strong> {printingOrder.customer && printingOrder.customer.address ? printingOrder.customer.address : '---'}</p>
                                 </div>
                                 <table className="w-full text-right border-collapse mb-6 mt-4">
                                     <thead>
@@ -326,25 +320,25 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {printingOrder.items.map((item, i) => (
+                                        {(printingOrder.items || []).map((item, i) => (
                                             <tr key={i}>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.name}</td>
-                                                <td className="border-2 border-gray-800 p-3 text-center font-bold">{item.qty}</td>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.price.toLocaleString()}</td>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{(item.price * item.qty).toLocaleString()}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.name || '---'}</td>
+                                                <td className="border-2 border-gray-800 p-3 text-center font-bold">{item.qty || 1}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{(Number(item.price)||0).toLocaleString()}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{((Number(item.price)||0) * (item.qty||1)).toLocaleString()}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                                 <div className="text-left bg-gray-100 p-4 border-2 border-gray-800 rounded-lg">
                                     <h3 className="text-xl font-bold mb-2 border-b border-gray-300 pb-2">
-                                        مجموع السلع: {(printingOrder.cartTotal || printingOrder.total).toLocaleString()} {t.currency}
+                                        مجموع السلع: {(printingOrder.cartTotal || printingOrder.total || 0).toLocaleString()} {t.currency}
                                     </h3>
                                     <h3 className="text-xl font-bold mb-2 border-b border-gray-300 pb-2">
                                         أجور التوصيل / گەیاندن: {(printingOrder.deliveryFee || 0).toLocaleString()} {t.currency}
                                     </h3>
                                     <h2 className="text-3xl font-black mt-4 text-red-600">
-                                        المبلغ الكلي / کۆی گشتی: {printingOrder.total.toLocaleString()} {t.currency}
+                                        المبلغ الكلي / کۆی گشتی: {(printingOrder.total || printingOrder.cartTotal || 0).toLocaleString()} {t.currency}
                                     </h2>
                                 </div>
                             </div>
@@ -359,17 +353,17 @@
                                 <div className="space-y-6 text-2xl font-bold">
                                     <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
                                         <span className="w-1/3 text-gray-600">الاسم / ناو:</span>
-                                        <span className="w-2/3 text-4xl">{printingOrder.customer.name}</span>
+                                        <span className="w-2/3 text-4xl">{printingOrder.customer && printingOrder.customer.name ? printingOrder.customer.name : '---'}</span>
                                     </div>
                                     <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
                                         <span className="w-1/3 text-gray-600">الموبايل / مۆبایل:</span>
-                                        <span className="w-2/3 text-4xl tracking-widest" dir="ltr">{printingOrder.customer.phone || '---'}</span>
+                                        <span className="w-2/3 text-4xl tracking-widest" dir="ltr">{printingOrder.customer && printingOrder.customer.phone ? printingOrder.customer.phone : '---'}</span>
                                     </div>
                                     <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
                                         <span className="w-1/3 text-gray-600">العنوان / ناونیشان:</span>
-                                        <span className="w-2/3 text-3xl">{printingOrder.customer.address}</span>
+                                        <span className="w-2/3 text-3xl">{printingOrder.customer && printingOrder.customer.address ? printingOrder.customer.address : '---'}</span>
                                     </div>
-                                    {printingOrder.customer.notes && (
+                                    {printingOrder.customer && printingOrder.customer.notes && (
                                         <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
                                             <span className="w-1/3 text-gray-600">ملاحظة / تێبینی:</span>
                                             <span className="w-2/3 text-3xl text-red-600">{printingOrder.customer.notes}</span>
@@ -378,20 +372,18 @@
                                 </div>
                                 <div className="text-center mt-10 p-6 bg-gray-200 border-4 border-gray-800 rounded-2xl">
                                     <p className="text-2xl text-gray-700 mb-2">المبلغ المطلوب / پارەی داواکراو</p>
-                                    <p className="text-6xl font-black text-black">{printingOrder.total.toLocaleString()} د.ع</p>
+                                    <p className="text-6xl font-black text-black">{(printingOrder.total || printingOrder.cartTotal || 0).toLocaleString()} د.ع</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Toast */}
                     {toastMsg && (
                         <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[150] bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold animate-slide-up flex items-center gap-2">
                             ✓ {toastMsg}
                         </div>
                     )}
 
-                    {/* Top Navbar */}
                     <header className="bg-amazon text-white sticky top-0 z-50 no-print">
                         <div className="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
                             <div onClick={() => setPage('home')} className="flex items-center gap-2 cursor-pointer border border-transparent hover:border-white p-1 rounded">
@@ -474,11 +466,11 @@
                                                         <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
                                                     </div>
                                                     <div className="p-4 flex-1 flex flex-col bg-white">
-                                                        <span className="text-xs text-gray-400 mb-1">{p.sku}</span>
-                                                        <h3 className="font-bold text-base text-gray-900 mb-2 line-clamp-2 group-hover:text-amazon-orange transition-colors">{p.name}</h3>
+                                                        <span className="text-xs text-gray-400 mb-1">{p.sku || '---'}</span>
+                                                        <h3 className="font-bold text-base text-gray-900 mb-2 line-clamp-2 group-hover:text-amazon-orange transition-colors">{p.name || '---'}</h3>
                                                         {renderStars()}
                                                         <div className="mt-2 mb-3">
-                                                            <span className="text-2xl font-black text-gray-900">{Number(p.price).toLocaleString()} {t.currency}</span>
+                                                            <span className="text-2xl font-black text-gray-900">{(Number(p.price)||0).toLocaleString()} {t.currency}</span>
                                                         </div>
                                                         <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-bold py-2 rounded-lg transition-colors shadow-md hover:shadow-lg">
                                                             {t.addCart}
@@ -510,23 +502,26 @@
                                         </div>
 
                                         <div className="space-y-4">
-                                            {orders.filter(o => 
-                                                o.invoiceId.toLowerCase().includes(orderSearchText.toLowerCase()) || 
-                                                (o.customer.phone && o.customer.phone.includes(orderSearchText)) ||
-                                                (o.customer.name && o.customer.name.toLowerCase().includes(orderSearchText.toLowerCase()))
-                                            ).map(order => (
+                                            {orders.filter(o => {
+                                                const srch = orderSearchText.toLowerCase();
+                                                if(!srch) return true;
+                                                const invMatch = o.invoiceId && o.invoiceId.toLowerCase().includes(srch);
+                                                const phoneMatch = o.customer && o.customer.phone && o.customer.phone.includes(srch);
+                                                const nameMatch = o.customer && o.customer.name && o.customer.name.toLowerCase().includes(srch);
+                                                return invMatch || phoneMatch || nameMatch;
+                                            }).map(order => (
                                                 <div key={order.id} className={`border-2 rounded-xl p-4 ${order.status === 'pending' ? 'border-yellow-400 bg-yellow-50' : order.status === 'accepted' ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50'}`}>
                                                     <div className="flex flex-wrap justify-between items-start gap-4 mb-3 border-b pb-3">
                                                         <div>
-                                                            <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold ml-2 shadow">{order.invoiceId}</span>
-                                                            <h4 className="font-bold text-lg inline-block">{order.customer.name}</h4>
-                                                            <p className="text-sm text-gray-600 mt-1">🕒 {new Date(order.date).toLocaleString('ar-IQ')}</p>
-                                                            <p className="text-sm mt-1"><strong>مۆبایل / الهاتف:</strong> <span dir="ltr">{order.customer.phone || '---'}</span></p>
-                                                            <p className="text-sm mt-1"><strong>العنوان:</strong> {order.customer.address}</p>
-                                                            {order.customer.notes && <p className="text-sm font-bold text-red-600 mt-1"><strong>ملاحظة:</strong> {order.customer.notes}</p>}
+                                                            <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold ml-2 shadow">{order.invoiceId || '---'}</span>
+                                                            <h4 className="font-bold text-lg inline-block">{order.customer && order.customer.name ? order.customer.name : '---'}</h4>
+                                                            <p className="text-sm text-gray-600 mt-1">🕒 {order.date ? new Date(order.date).toLocaleString('ar-IQ') : '---'}</p>
+                                                            <p className="text-sm mt-1"><strong>مۆبایل / الهاتف:</strong> <span dir="ltr">{order.customer && order.customer.phone ? order.customer.phone : '---'}</span></p>
+                                                            <p className="text-sm mt-1"><strong>العنوان:</strong> {order.customer && order.customer.address ? order.customer.address : '---'}</p>
+                                                            {order.customer && order.customer.notes && <p className="text-sm font-bold text-red-600 mt-1"><strong>ملاحظة:</strong> {order.customer.notes}</p>}
                                                         </div>
                                                         <div className="text-left flex flex-col items-end gap-2">
-                                                            <p className="text-2xl font-black text-amazon-orange">{order.total.toLocaleString()} {t.currency}</p>
+                                                            <p className="text-2xl font-black text-amazon-orange">{(order.total || order.cartTotal || 0).toLocaleString()} {t.currency}</p>
                                                             <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold shadow ${order.status==='pending'?'bg-yellow-200 text-yellow-800':order.status==='accepted'?'bg-green-200 text-green-800':'bg-red-200 text-red-800'}`}>
                                                                 {t[order.status]}
                                                             </span>
@@ -534,10 +529,10 @@
                                                     </div>
                                                     
                                                     <div className="mb-4 bg-white p-3 rounded-lg border shadow-sm">
-                                                        {order.items.map((item, i) => (
+                                                        {(order.items || []).map((item, i) => (
                                                             <div key={i} className="flex justify-between text-sm py-2 border-b last:border-0 items-center">
-                                                                <span><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1 font-bold">{item.qty}x</span> {item.name} <span className="text-xs text-gray-400">({item.sku})</span></span>
-                                                                <span className="font-bold">{(item.price * item.qty).toLocaleString()} {t.currency}</span>
+                                                                <span><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1 font-bold">{item.qty || 1}x</span> {item.name || '---'} <span className="text-xs text-gray-400">({item.sku || '---'})</span></span>
+                                                                <span className="font-bold">{((Number(item.price)||0) * (item.qty||1)).toLocaleString()} {t.currency}</span>
                                                             </div>
                                                         ))}
                                                         <div className="flex justify-between text-sm mt-2 pt-2 border-t text-gray-500">
@@ -606,14 +601,18 @@
                                                 <input type="text" placeholder={t.adminSearch} value={adminSearch} onChange={e=>setAdminSearch(e.target.value)} className="border p-2 rounded w-64 outline-none" />
                                             </div>
                                             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                                                {products.filter(p => p.name.includes(adminSearch) || (p.sku && p.sku.includes(adminSearch.toUpperCase()))).map(p => (
+                                                {products.filter(p => {
+                                                    const sA = adminSearch.toLowerCase();
+                                                    if(!sA) return true;
+                                                    return (p.name && p.name.toLowerCase().includes(sA)) || (p.sku && p.sku.toLowerCase().includes(sA));
+                                                }).map(p => (
                                                     <div key={p.id} className="flex items-center gap-4 border p-3 rounded-lg hover:bg-gray-50">
                                                         <img src={p.imageUrl} className="w-16 h-16 object-contain rounded bg-white border" />
                                                         <div className="flex-1">
-                                                            <span className="text-xs font-bold text-blue-600">{p.sku}</span>
-                                                            <h4 className="font-bold line-clamp-1">{p.name}</h4>
-                                                            <p className="text-amazon-orange font-bold">السعر: {Number(p.price).toLocaleString()} {t.currency}</p>
-                                                            {p.costPrice && <p className="text-xs text-gray-500">التكلفة: {Number(p.costPrice).toLocaleString()} | الربح: {(Number(p.price) - Number(p.costPrice)).toLocaleString()}</p>}
+                                                            <span className="text-xs font-bold text-blue-600">{p.sku || '---'}</span>
+                                                            <h4 className="font-bold line-clamp-1">{p.name || '---'}</h4>
+                                                            <p className="text-amazon-orange font-bold">السعر: {(Number(p.price)||0).toLocaleString()} {t.currency}</p>
+                                                            {p.costPrice && <p className="text-xs text-gray-500">التكلفة: {(Number(p.costPrice)||0).toLocaleString()} | الربح: {((Number(p.price)||0) - (Number(p.costPrice)||0)).toLocaleString()}</p>}
                                                         </div>
                                                         <button onClick={()=>deleteProduct(p.id)} className="text-red-500 hover:bg-red-100 p-2 rounded font-bold">{t.delete}</button>
                                                     </div>
@@ -650,14 +649,12 @@
                         ) : null}
                     </main>
 
-                    {/* Footer */}
                     <footer className="bg-amazon-light text-white text-center py-6 mt-auto no-print">
                         <p className="text-sm font-bold text-gray-400">
                             © <span onClick={handleSecretLogin} className="cursor-default select-none">2026</span> KE STORE. All rights reserved.
                         </p>
                     </footer>
 
-                    {/* Product Details Modal */}
                     {selectedProduct && (
                         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 animate-fade-in no-print" onClick={()=>setSelectedProduct(null)}>
                             <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row relative" onClick={e=>e.stopPropagation()}>
@@ -666,10 +663,10 @@
                                     <img src={selectedProduct.imageUrl} className="w-full h-auto max-h-[400px] object-contain hover:scale-105 transition-transform" />
                                 </div>
                                 <div className="md:w-1/2 p-8 flex flex-col">
-                                    <span className="text-sm text-amazon-orange font-bold mb-2">{selectedProduct.category} | {selectedProduct.sku}</span>
-                                    <h2 className="text-2xl font-black mb-4">{selectedProduct.name}</h2>
+                                    <span className="text-sm text-amazon-orange font-bold mb-2">{selectedProduct.category || '---'} | {selectedProduct.sku || '---'}</span>
+                                    <h2 className="text-2xl font-black mb-4">{selectedProduct.name || '---'}</h2>
                                     {renderStars()}
-                                    <p className="text-3xl font-black text-gray-900 my-4">{Number(selectedProduct.price).toLocaleString()} {t.currency}</p>
+                                    <p className="text-3xl font-black text-gray-900 my-4">{(Number(selectedProduct.price)||0).toLocaleString()} {t.currency}</p>
                                     <div className="prose prose-sm mb-6 text-gray-600 border-t pt-4">
                                         <p>{selectedProduct.description || 'لا يوجد وصف متاح.'}</p>
                                     </div>
@@ -681,7 +678,6 @@
                         </div>
                     )}
 
-                    {/* Cart Drawer */}
                     {isCartOpen && (
                         <div className="fixed inset-0 bg-black/60 z-[100] flex justify-end animate-fade-in no-print" onClick={()=>setIsCartOpen(false)}>
                             <div className="bg-white w-full max-w-md h-full flex flex-col shadow-2xl animate-slide-up" onClick={e=>e.stopPropagation()}>
@@ -700,8 +696,8 @@
                                             <div key={item.id} className="flex gap-4 border-b pb-4 items-center bg-gray-50 p-2 rounded-lg">
                                                 <img src={item.imageUrl} className="w-20 h-20 object-contain bg-white rounded border" />
                                                 <div className="flex-1">
-                                                    <h4 className="font-bold text-sm line-clamp-2">{item.name}</h4>
-                                                    <p className="text-amazon-orange font-black mt-1">{Number(item.price).toLocaleString()} {t.currency}</p>
+                                                    <h4 className="font-bold text-sm line-clamp-2">{item.name || '---'}</h4>
+                                                    <p className="text-amazon-orange font-black mt-1">{(Number(item.price)||0).toLocaleString()} {t.currency}</p>
                                                     <div className="flex items-center gap-3 mt-2 bg-white w-fit border rounded-full px-2">
                                                         <button onClick={()=>updateQty(item.id, -1)} className="text-xl font-bold px-2 text-gray-600 hover:text-red-500">-</button>
                                                         <span className="font-black text-lg w-4 text-center">{item.qty}</span>
@@ -735,7 +731,6 @@
                         </div>
                     )}
 
-                    {/* Checkout Modal */}
                     {isCheckoutOpen && (
                         <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 animate-fade-in no-print" onClick={()=>setIsCheckoutOpen(false)}>
                             <div className="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 shadow-2xl relative" onClick={e=>e.stopPropagation()}>
@@ -782,7 +777,6 @@
                         </div>
                     )}
 
-                    {/* Success Modal */}
                     {isSuccessOpen && (
                         <div className="fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4 animate-fade-in no-print">
                             <div className="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl animate-pop border-4 border-green-400">
