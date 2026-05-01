@@ -44,13 +44,16 @@
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e5e7eb; }
         .product-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #febd69; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         
         /* Print Styles */
         @media print {
             body > *:not(#print-section) { display: none !important; }
             #print-section { display: block !important; position: absolute; top: 0; left: 0; width: 100%; color: black; background: white; padding: 20px; direction: rtl; }
             .no-print { display: none !important; }
+            
+            /* Specific print typography for better receipt look */
+            #print-section h1 { font-size: 32pt; }
+            #print-section p, #print-section th, #print-section td { font-size: 14pt; }
         }
     </style>
 </head>
@@ -79,33 +82,34 @@
             ar: {
                 home: "الرئيسية", logout: "خروج", search: "ابحث عن السلع، الماركات، أو برقم المنتج...", 
                 cart: "عربة التسوق", emptyCart: "عربة التسوق الخاصة بك فارغة", addCart: "أضف إلى العربة", 
-                total: "المجموع", checkout: "متابعة عملية الشراء", currency: "د.ع", welcome: "مرحباً بك في", 
+                total: "مجموع السلع", checkout: "متابعة عملية الشراء", currency: "د.ع", welcome: "مرحباً بك في", 
                 sub: "ملايين المنتجات. توصيل سريع. أسعار تنافسية.", lang: "کوردی", adminTitle: "إدارة النظام", 
-                addProduct: "إضافة منتج جديد", pName: "اسم المنتج", pPrice: "السعر", pImg: "رابط الصورة", 
-                pDesc: "الوصف", pCat: "القسم", publish: "نشر", checkoutTitle: "معلومات التوصيل", 
-                cName: "الاسم الكامل", cAddress: "العنوان بالتفصيل", cNotes: "ملاحظات للمندوب", 
-                confirmOrder: "تأكيد الطلب الآن", successMsg: "تم استلام طلبك بنجاح! 🎉", successSub: "سيقوم فريقنا بالتواصل معك قريباً.", 
-                backToHome: "الاستمرار في التسوق", addedToCart: "تمت الإضافة للعربة!", freeDelivery: "توصيل مجاني", 
-                productDetails: "تفاصيل المنتج", buyNow: "اشترِ الآن", account: "الحساب", outOfStock: "نفذت الكمية",
+                addProduct: "إضافة منتج جديد", pName: "اسم المنتج", pPrice: "سعر البيع", pCost: "سعر التكلفة (عليك)", 
+                deliveryFeeInput: "أجور التوصيل", pImg: "رابط الصورة", pDesc: "الوصف", pCat: "القسم", publish: "نشر", 
+                checkoutTitle: "معلومات التوصيل", cName: "الاسم الكامل", cPhone: "رقم الهاتف", cAddress: "العنوان بالتفصيل", 
+                cNotes: "ملاحظات للمندوب", confirmOrder: "تأكيد الطلب الآن", successMsg: "تم استلام طلبك بنجاح! 🎉", 
+                successSub: "سيقوم فريقنا بالتواصل معك قريباً.", backToHome: "الاستمرار في التسوق", addedToCart: "تمت الإضافة للعربة!", 
+                freeDelivery: "توصيل مجاني", productDetails: "تفاصيل المنتج", buyNow: "اشترِ الآن", account: "الحساب", outOfStock: "نفذت الكمية",
                 orders: "الطلبيات", sales: "المبيعات", products: "المنتجات", accept: "نعم (قبول)", reject: "لا (رفض)", 
-                print: "طباعة", pending: "قيد الانتظار", accepted: "مقبول", rejected: "مرفوض", invoiceNo: "رقم القائمة", 
-                itemNo: "رقم المنتج", delete: "حذف", adminSearch: "ابحث بالاسم أو رقم المنتج...", totalSales: "إجمالي المبيعات",
-                close: "إغلاق"
+                printInvoice: "طباعة القائمة", printAddress: "طباعة العنوان", pending: "قيد الانتظار", accepted: "مقبول", 
+                rejected: "مرفوض", invoiceNo: "رقم القائمة", itemNo: "رقم المنتج", delete: "حذف", adminSearch: "ابحث بالاسم أو رقم المنتج...", 
+                orderSearch: "ابحث برقم الطلبية أو رقم الهاتف...", totalSales: "إجمالي المبيعات", profit: "صافي الأرباح", close: "إغلاق"
             },
             ku: {
                 home: "سەرەکی", logout: "دەرچوون", search: "گەڕان بۆ کاڵا، براند، یان ژمارەی کاڵا...", 
-                cart: "سەبەتە", emptyCart: "سەبەتەکەت بەتاڵە", addCart: "بۆ ناو سەبەتە", total: "کۆی گشتی", 
+                cart: "سەبەتە", emptyCart: "سەبەتەکەت بەتاڵە", addCart: "بۆ ناو سەبەتە", total: "کۆی کاڵاکان", 
                 checkout: "کڕین", currency: "د.ع", welcome: "بەخێربێیت بۆ", sub: "ملیۆنان کاڵا. گەیاندنی خێرا. باشترین نرخ.", 
                 lang: "العربية", adminTitle: "بەڕێوەبردنی سیستەم", addProduct: "زیادکردنی کاڵای نوێ", pName: "ناوی کاڵا", 
-                pPrice: "نرخ", pImg: "لینکی وێنە", pDesc: "وەسف", pCat: "بەش", publish: "بڵاوکردنەوە", 
-                checkoutTitle: "زانیاری گەیاندن", cName: "ناوی تەواو", cAddress: "ناونیشانی تەواو", cNotes: "تێبینی بۆ گەیاندنکار", 
-                confirmOrder: "تأکیدکردنەوەی داواکاری", successMsg: "داواکارییەکەت وەرگیرا! 🎉", successSub: "بەم زووانە پەیوەندیت پێوە دەکەین.", 
-                backToHome: "گەڕانەوە بۆ فرۆشگا", addedToCart: "خرایە سەبەتەکەوە!", freeDelivery: "گەیاندنی خۆڕایی", 
-                productDetails: "وردەکاری کاڵا", buyNow: "ئێستا بیکڕە", account: "هەژمار", outOfStock: "نەماوە",
-                orders: "داواکارییەکان", sales: "فرۆشەکان", products: "کاڵاکان", accept: "بەڵێ (قبوڵکردن)", reject: "نەخێر (ڕەتکردنەوە)", 
-                print: "چاپکردن", pending: "لە چاوەڕوانیدایە", accepted: "قبوڵکراو", rejected: "ڕەتکراوە", invoiceNo: "ژمارەی پسوڵە", 
-                itemNo: "ژمارەی کاڵا", delete: "سڕینەوە", adminSearch: "گەڕان بەناو یان ژمارە...", totalSales: "کۆی فرۆشەکان",
-                close: "داخستن"
+                pPrice: "نرخی فرۆشتن", pCost: "نرخی کڕین (لەسەر خۆت)", deliveryFeeInput: "کرێی گەیاندن", pImg: "لینکی وێنە", 
+                pDesc: "وەسف", pCat: "بەش", publish: "بڵاوکردنەوە", checkoutTitle: "زانیاری گەیاندن", cName: "ناوی تەواو", 
+                cPhone: "ژمارەی مۆبایل", cAddress: "ناونیشانی تەواو", cNotes: "تێبینی بۆ گەیاندنکار", confirmOrder: "تأکیدکردنەوەی داواکاری", 
+                successMsg: "داواکارییەکەت وەرگیرا! 🎉", successSub: "بەم زووانە پەیوەندیت پێوە دەکەین.", backToHome: "گەڕانەوە بۆ فرۆشگا", 
+                addedToCart: "خرایە سەبەتەکەوە!", freeDelivery: "گەیاندنی خۆڕایی", productDetails: "وردەکاری کاڵا", buyNow: "ئێستا بیکڕە", 
+                account: "هەژمار", outOfStock: "نەماوە", orders: "داواکارییەکان", sales: "فرۆشەکان", products: "کاڵاکان", 
+                accept: "بەڵێ (قبوڵکردن)", reject: "نەخێر (ڕەتکردنەوە)", printInvoice: "چاپکردنی پسوڵە", printAddress: "چاپکردنی ناونیشان", 
+                pending: "لە چاوەڕوانیدایە", accepted: "قبوڵکراو", rejected: "ڕەتکراوە", invoiceNo: "ژمارەی پسوڵە", itemNo: "ژمارەی کاڵا", 
+                delete: "سڕینەوە", adminSearch: "گەڕان بەناو یان ژمارە...", orderSearch: "گەڕان بە ژمارەی داواکاری یان مۆبایل...", 
+                totalSales: "کۆی فرۆشەکان", profit: "قازانج (خێر)", close: "داخستن"
             }
         };
 
@@ -124,13 +128,17 @@
             const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
             const [isSuccessOpen, setIsSuccessOpen] = useState(false);
             const [toastMsg, setToastMsg] = useState('');
-            const [orderForm, setOrderForm] = useState({ name: '', address: '', notes: '' });
+            const [orderForm, setOrderForm] = useState({ name: '', phone: '', address: '', notes: '' });
 
             // Admin states
-            const [adminTab, setAdminTab] = useState('orders'); // orders, products, sales
+            const [adminTab, setAdminTab] = useState('orders');
             const [adminSearch, setAdminSearch] = useState('');
-            const [newProduct, setNewProduct] = useState({ name: '', price: '', imageUrl: '', description: '', category: 'إلكترونيات' });
+            const [orderSearchText, setOrderSearchText] = useState('');
+            // Add costPrice and deliveryFee to product form
+            const [newProduct, setNewProduct] = useState({ name: '', price: '', costPrice: '', deliveryFee: 6000, imageUrl: '', description: '', category: 'إلكترونيات' });
+            
             const [printingOrder, setPrintingOrder] = useState(null);
+            const [printType, setPrintType] = useState('invoice'); // 'invoice' or 'address'
 
             const t = TR[lang];
             let clickCount = useRef(0);
@@ -154,7 +162,6 @@
                 return () => { pRef.off(); oRef.off(); };
             }, []);
 
-            // 5 Clicks Login Logic
             const handleSecretLogin = () => {
                 clickCount.current += 1;
                 if (clickCount.current >= 5) {
@@ -196,28 +203,33 @@
                 else setCart(cart.map(x => x.id === id ? { ...exist, qty: exist.qty + amount } : x));
             };
 
-            const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const cartTotalItemsPrice = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            // Get maximum delivery fee among cart items, default to 6000
+            const cartDeliveryFee = cart.length > 0 ? Math.max(...cart.map(item => Number(item.deliveryFee) || 6000)) : 0;
+            const cartGrandTotal = cartTotalItemsPrice + cartDeliveryFee;
 
             const handleOrderSubmit = (e) => {
                 e.preventDefault();
                 const invoiceId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+                
                 db.ref('orders').push({
                     invoiceId,
                     customer: orderForm,
                     items: cart,
-                    total: cartTotal,
+                    cartTotal: cartTotalItemsPrice,
+                    deliveryFee: cartDeliveryFee,
+                    total: cartGrandTotal, // Grand total
                     date: new Date().toISOString(),
-                    status: 'pending' // pending, accepted, rejected
+                    status: 'pending'
                 });
                 
                 setIsCheckoutOpen(false);
                 setIsCartOpen(false);
                 setIsSuccessOpen(true);
                 setCart([]);
-                setOrderForm({ name: '', address: '', notes: '' });
+                setOrderForm({ name: '', phone: '', address: '', notes: '' });
             };
 
-            // Smart Search for User
             const searchTerms = search.toLowerCase().trim().split(/\s+/);
             const filteredProducts = products.filter(p => {
                 const matchCat = activeCat === 'الكل' || p.category === activeCat;
@@ -226,25 +238,40 @@
                 return matchCat && matchSearch;
             });
 
-            // Admin Functions
+            // Admin Actions
             const handleAddProduct = (e) => {
                 e.preventDefault();
                 const sku = 'ITM-' + Math.floor(1000 + Math.random() * 9000);
-                db.ref('products').push({ ...newProduct, sku, price: Number(newProduct.price) });
-                setNewProduct({ name: '', price: '', imageUrl: '', description: '', category: 'إلكترونيات' });
+                db.ref('products').push({ 
+                    ...newProduct, 
+                    sku, 
+                    price: Number(newProduct.price),
+                    costPrice: Number(newProduct.costPrice || 0),
+                    deliveryFee: Number(newProduct.deliveryFee || 6000)
+                });
+                setNewProduct({ name: '', price: '', costPrice: '', deliveryFee: 6000, imageUrl: '', description: '', category: 'إلكترونيات' });
                 showToast(lang === 'ku' ? "کاڵاکە زیادکرا" : "تمت إضافة المنتج");
             };
 
             const deleteProduct = (id) => {
-                if(window.confirm("Are you sure?")) db.ref('products/' + id).remove();
+                if(window.confirm(lang === 'ku' ? "دڵنیای لە سڕینەوەی ئەم کاڵایە؟" : "هل أنت متأكد من الحذف؟")) {
+                    db.ref('products/' + id).remove();
+                }
             };
 
             const updateOrderStatus = (id, status) => {
                 db.ref('orders/' + id).update({ status });
             };
 
-            const handlePrint = (order) => {
+            const deleteOrder = (id) => {
+                if(window.confirm(lang === 'ku' ? "دڵنیای لە سڕینەوەی ئەم داواکارییە؟" : "هل أنت متأكد من حذف هذه الطلبية؟")) {
+                    db.ref('orders/' + id).remove();
+                }
+            };
+
+            const handlePrint = (order, type) => {
                 setPrintingOrder(order);
+                setPrintType(type);
                 setTimeout(() => { window.print(); setPrintingOrder(null); }, 500);
             };
 
@@ -255,49 +282,103 @@
                 </div>
             );
 
+            // Calculations for Admin Dashboard
+            const acceptedOrders = orders.filter(o => o.status === 'accepted');
+            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.cartTotal) || Number(o.total) || 0), 0);
+            const totalProfitSum = acceptedOrders.reduce((acc, o) => {
+                let orderProfit = 0;
+                if(o.items) {
+                    o.items.forEach(item => {
+                        const sellingPrice = Number(item.price) || 0;
+                        const costPrice = Number(item.costPrice) || 0;
+                        orderProfit += (sellingPrice - costPrice) * item.qty;
+                    });
+                }
+                return acc + orderProfit;
+            }, 0);
+
             return (
                 <div className={`flex flex-col min-h-screen ${lang === 'ku' ? 'text-right' : 'text-right'}`} dir="rtl">
                     {/* Print Container */}
                     <div id="print-section" className="hidden bg-white p-8">
-                        {printingOrder && (
-                            <div className="max-w-3xl mx-auto border-2 border-gray-800 p-6 rounded-lg">
+                        {printingOrder && printType === 'invoice' && (
+                            <div className="max-w-3xl mx-auto border-2 border-gray-800 p-8 rounded-lg">
                                 <div className="text-center mb-6 border-b-2 border-gray-800 pb-4">
-                                    <h1 className="text-3xl font-black mb-2">KE STORE</h1>
-                                    <h2 className="text-xl font-bold">فاتورة مبيعات / پسوڵەی فرۆشتن</h2>
-                                    <p className="text-gray-600 mt-2 font-bold">{t.invoiceNo}: {printingOrder.invoiceId}</p>
+                                    <h1 className="text-4xl font-black mb-2">KESTORE</h1>
+                                    <h2 className="text-2xl font-bold">فاتورة مبيعات / پسوڵەی فرۆشتن</h2>
+                                    <div className="flex justify-between items-center mt-4 px-4 font-bold">
+                                        <p>{t.invoiceNo}: <span className="text-xl bg-gray-200 px-2 rounded">{printingOrder.invoiceId}</span></p>
+                                        <p>التاريخ / بەروار: {new Date(printingOrder.date).toLocaleString('ar-IQ')}</p>
+                                    </div>
                                 </div>
-                                <div className="mb-6">
-                                    <p><strong>{t.cName}:</strong> {printingOrder.customer.name}</p>
-                                    <p><strong>{t.cAddress}:</strong> {printingOrder.customer.address}</p>
-                                    <p><strong>التاريخ / بەروار:</strong> {new Date(printingOrder.date).toLocaleString('ar-IQ')}</p>
-                                    {printingOrder.customer.notes && <p><strong>ملاحظات:</strong> {printingOrder.customer.notes}</p>}
+                                <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <p className="mb-2"><strong className="text-lg">اسم الزبون / ناوی کڕیار:</strong> {printingOrder.customer.name}</p>
+                                    <p className="mb-2"><strong className="text-lg">رقم الهاتف / مۆبایل:</strong> {printingOrder.customer.phone || '---'}</p>
+                                    <p className="mb-2"><strong className="text-lg">العنوان / ناونیشان:</strong> {printingOrder.customer.address}</p>
                                 </div>
-                                <table className="w-full text-right border-collapse mb-6">
+                                <table className="w-full text-right border-collapse mb-6 mt-4">
                                     <thead>
                                         <tr className="bg-gray-200">
-                                            <th className="border border-gray-400 p-2">المنتج / کاڵا</th>
-                                            <th className="border border-gray-400 p-2">{t.itemNo}</th>
-                                            <th className="border border-gray-400 p-2">الكمية / بڕ</th>
-                                            <th className="border border-gray-400 p-2">السعر / نرخ</th>
-                                            <th className="border border-gray-400 p-2">المجموع / کۆ</th>
+                                            <th className="border-2 border-gray-800 p-3">المنتج / کاڵا</th>
+                                            <th className="border-2 border-gray-800 p-3 text-center">الكمية / بڕ</th>
+                                            <th className="border-2 border-gray-800 p-3">السعر / نرخ</th>
+                                            <th className="border-2 border-gray-800 p-3">المجموع / کۆ</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {printingOrder.items.map((item, i) => (
                                             <tr key={i}>
-                                                <td className="border border-gray-400 p-2">{item.name}</td>
-                                                <td className="border border-gray-400 p-2">{item.sku}</td>
-                                                <td className="border border-gray-400 p-2">{item.qty}</td>
-                                                <td className="border border-gray-400 p-2">{item.price.toLocaleString()}</td>
-                                                <td className="border border-gray-400 p-2">{(item.price * item.qty).toLocaleString()}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.name}</td>
+                                                <td className="border-2 border-gray-800 p-3 text-center font-bold">{item.qty}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.price.toLocaleString()}</td>
+                                                <td className="border-2 border-gray-800 p-3 font-bold">{(item.price * item.qty).toLocaleString()}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                                <div className="text-left">
-                                    <h3 className="text-2xl font-bold border-t-2 border-gray-800 pt-4">
-                                        الإجمالي: {printingOrder.total.toLocaleString()} {t.currency}
+                                <div className="text-left bg-gray-100 p-4 border-2 border-gray-800 rounded-lg">
+                                    <h3 className="text-xl font-bold mb-2 border-b border-gray-300 pb-2">
+                                        مجموع السلع: {(printingOrder.cartTotal || printingOrder.total).toLocaleString()} {t.currency}
                                     </h3>
+                                    <h3 className="text-xl font-bold mb-2 border-b border-gray-300 pb-2">
+                                        أجور التوصيل / گەیاندن: {(printingOrder.deliveryFee || 0).toLocaleString()} {t.currency}
+                                    </h3>
+                                    <h2 className="text-3xl font-black mt-4 text-red-600">
+                                        المبلغ الكلي / کۆی گشتی: {printingOrder.total.toLocaleString()} {t.currency}
+                                    </h2>
+                                </div>
+                            </div>
+                        )}
+
+                        {printingOrder && printType === 'address' && (
+                            <div className="max-w-2xl mx-auto border-4 border-dashed border-gray-800 p-10 rounded-3xl mt-10">
+                                <div className="text-center mb-8 border-b-4 border-gray-800 pb-6">
+                                    <h1 className="text-6xl font-black mb-4 tracking-wider">KESTORE</h1>
+                                    <p className="text-3xl font-bold">معلومات التوصيل / زانیاری گەیاندن</p>
+                                </div>
+                                <div className="space-y-6 text-2xl font-bold">
+                                    <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
+                                        <span className="w-1/3 text-gray-600">الاسم / ناو:</span>
+                                        <span className="w-2/3 text-4xl">{printingOrder.customer.name}</span>
+                                    </div>
+                                    <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
+                                        <span className="w-1/3 text-gray-600">الموبايل / مۆبایل:</span>
+                                        <span className="w-2/3 text-4xl tracking-widest" dir="ltr">{printingOrder.customer.phone || '---'}</span>
+                                    </div>
+                                    <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
+                                        <span className="w-1/3 text-gray-600">العنوان / ناونیشان:</span>
+                                        <span className="w-2/3 text-3xl">{printingOrder.customer.address}</span>
+                                    </div>
+                                    {printingOrder.customer.notes && (
+                                        <div className="flex gap-4 border-b-2 border-gray-300 pb-4">
+                                            <span className="w-1/3 text-gray-600">ملاحظة / تێبینی:</span>
+                                            <span className="w-2/3 text-3xl text-red-600">{printingOrder.customer.notes}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="text-center mt-10 p-6 bg-gray-200 border-4 border-gray-800 rounded-2xl">
+                                    <p className="text-2xl text-gray-700 mb-2">المبلغ المطلوب / پارەی داواکراو</p>
+                                    <p className="text-6xl font-black text-black">{printingOrder.total.toLocaleString()} د.ع</p>
                                 </div>
                             </div>
                         )}
@@ -371,11 +452,9 @@
                     <main className="flex-1 w-full max-w-[1500px] mx-auto animate-fade-in pb-12 no-print">
                         {page === 'home' ? (
                             <div className="relative">
-                                {/* Adjusted Hero Section Padding & Margin */}
                                 <div className="w-full h-[300px] sm:h-[400px] bg-gradient-to-r from-amazon-light to-blue-900 relative mb-12">
                                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-gray-100 to-transparent"></div>
-                                    {/* Moved Text Down with pt-16 sm:pt-32 */}
                                     <div className="relative z-10 px-6 pt-16 sm:pt-32 text-white max-w-xl mx-auto text-center drop-shadow-2xl">
                                         <h1 className="text-4xl sm:text-6xl font-black mb-4">{t.welcome} <span className="text-amazon-yellow">KESTORE</span></h1>
                                         <p className="text-lg sm:text-xl font-bold bg-black/40 inline-block px-5 py-2 rounded-full backdrop-blur-sm border border-white/20">{t.sub}</p>
@@ -391,7 +470,6 @@
                                         ) : (
                                             filteredProducts.map(p => (
                                                 <div key={p.id} onClick={() => setSelectedProduct(p)} className="product-card bg-white cursor-pointer rounded-xl overflow-hidden flex flex-col group relative shadow-sm">
-                                                    {/* Increased image container height and decreased padding for larger images */}
                                                     <div className="w-full h-[200px] sm:h-[240px] relative bg-white flex items-center justify-center overflow-hidden border-b border-gray-100">
                                                         <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500" onError={(e)=>e.target.src='https://via.placeholder.com/400'} />
                                                     </div>
@@ -424,44 +502,67 @@
 
                                 {adminTab === 'orders' && (
                                     <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-                                        <h3 className="text-xl font-bold mb-4">{t.orders}</h3>
+                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b pb-4">
+                                            <h3 className="text-xl font-bold">{t.orders}</h3>
+                                            <div className="w-full sm:w-auto">
+                                                <input type="text" placeholder={t.orderSearch} value={orderSearchText} onChange={(e)=>setOrderSearchText(e.target.value)} className="w-full sm:w-80 border-2 p-2 rounded-lg outline-none focus:border-amazon-orange" />
+                                            </div>
+                                        </div>
+
                                         <div className="space-y-4">
-                                            {orders.map(order => (
-                                                <div key={order.id} className={`border rounded-lg p-4 ${order.status === 'pending' ? 'border-yellow-400 bg-yellow-50' : order.status === 'accepted' ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50'}`}>
+                                            {orders.filter(o => 
+                                                o.invoiceId.toLowerCase().includes(orderSearchText.toLowerCase()) || 
+                                                (o.customer.phone && o.customer.phone.includes(orderSearchText)) ||
+                                                (o.customer.name && o.customer.name.toLowerCase().includes(orderSearchText.toLowerCase()))
+                                            ).map(order => (
+                                                <div key={order.id} className={`border-2 rounded-xl p-4 ${order.status === 'pending' ? 'border-yellow-400 bg-yellow-50' : order.status === 'accepted' ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50'}`}>
                                                     <div className="flex flex-wrap justify-between items-start gap-4 mb-3 border-b pb-3">
                                                         <div>
-                                                            <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold ml-2">{order.invoiceId}</span>
+                                                            <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm font-bold ml-2 shadow">{order.invoiceId}</span>
                                                             <h4 className="font-bold text-lg inline-block">{order.customer.name}</h4>
-                                                            <p className="text-sm text-gray-600">{new Date(order.date).toLocaleString('ar-IQ')}</p>
+                                                            <p className="text-sm text-gray-600 mt-1">🕒 {new Date(order.date).toLocaleString('ar-IQ')}</p>
+                                                            <p className="text-sm mt-1"><strong>مۆبایل / الهاتف:</strong> <span dir="ltr">{order.customer.phone || '---'}</span></p>
                                                             <p className="text-sm mt-1"><strong>العنوان:</strong> {order.customer.address}</p>
-                                                            {order.customer.notes && <p className="text-sm text-red-600"><strong>ملاحظة:</strong> {order.customer.notes}</p>}
+                                                            {order.customer.notes && <p className="text-sm font-bold text-red-600 mt-1"><strong>ملاحظة:</strong> {order.customer.notes}</p>}
                                                         </div>
-                                                        <div className="text-left">
-                                                            <p className="text-xl font-black text-amazon-orange">{order.total.toLocaleString()} {t.currency}</p>
-                                                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-bold ${order.status==='pending'?'bg-yellow-200 text-yellow-800':order.status==='accepted'?'bg-green-200 text-green-800':'bg-red-200 text-red-800'}`}>
+                                                        <div className="text-left flex flex-col items-end gap-2">
+                                                            <p className="text-2xl font-black text-amazon-orange">{order.total.toLocaleString()} {t.currency}</p>
+                                                            <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold shadow ${order.status==='pending'?'bg-yellow-200 text-yellow-800':order.status==='accepted'?'bg-green-200 text-green-800':'bg-red-200 text-red-800'}`}>
                                                                 {t[order.status]}
                                                             </span>
                                                         </div>
                                                     </div>
                                                     
-                                                    <div className="mb-4 bg-white p-3 rounded border">
+                                                    <div className="mb-4 bg-white p-3 rounded-lg border shadow-sm">
                                                         {order.items.map((item, i) => (
-                                                            <div key={i} className="flex justify-between text-sm py-1 border-b last:border-0">
-                                                                <span>{item.qty}x {item.name} <span className="text-xs text-gray-400">({item.sku})</span></span>
+                                                            <div key={i} className="flex justify-between text-sm py-2 border-b last:border-0 items-center">
+                                                                <span><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1 font-bold">{item.qty}x</span> {item.name} <span className="text-xs text-gray-400">({item.sku})</span></span>
                                                                 <span className="font-bold">{(item.price * item.qty).toLocaleString()} {t.currency}</span>
                                                             </div>
                                                         ))}
+                                                        <div className="flex justify-between text-sm mt-2 pt-2 border-t text-gray-500">
+                                                            <span>أجور التوصيل / گەیاندن:</span>
+                                                            <span className="font-bold">{(order.deliveryFee || 0).toLocaleString()} {t.currency}</span>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="flex gap-2 justify-end">
-                                                        {order.status === 'pending' && (
-                                                            <>
-                                                                <button onClick={()=>updateOrderStatus(order.id, 'accepted')} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-bold shadow">{t.accept}</button>
-                                                                <button onClick={()=>updateOrderStatus(order.id, 'rejected')} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-bold shadow">{t.reject}</button>
-                                                            </>
-                                                        )}
-                                                        <button onClick={()=>handlePrint(order)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold shadow flex items-center gap-1">
-                                                            🖨️ {t.print}
+                                                    <div className="flex flex-wrap gap-2 justify-between items-center">
+                                                        <div className="flex gap-2">
+                                                            {order.status === 'pending' && (
+                                                                <>
+                                                                    <button onClick={()=>updateOrderStatus(order.id, 'accepted')} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-bold shadow">{t.accept}</button>
+                                                                    <button onClick={()=>updateOrderStatus(order.id, 'rejected')} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-bold shadow">{t.reject}</button>
+                                                                </>
+                                                            )}
+                                                            <button onClick={()=>handlePrint(order, 'invoice')} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold shadow flex items-center gap-1">
+                                                                🖨️ {t.printInvoice}
+                                                            </button>
+                                                            <button onClick={()=>handlePrint(order, 'address')} className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-bold shadow flex items-center gap-1">
+                                                                📍 {t.printAddress}
+                                                            </button>
+                                                        </div>
+                                                        <button onClick={()=>deleteOrder(order.id)} className="bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded font-bold shadow flex items-center gap-1">
+                                                            🗑️ {t.delete}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -477,7 +578,20 @@
                                             <h3 className="text-xl font-bold mb-4">{t.addProduct}</h3>
                                             <form onSubmit={handleAddProduct} className="space-y-4">
                                                 <input required type="text" placeholder={t.pName} value={newProduct.name} onChange={e=>setNewProduct({...newProduct, name: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none" />
-                                                <input required type="number" placeholder={t.pPrice} value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none" />
+                                                <div className="flex gap-2">
+                                                    <div className="w-1/2">
+                                                        <label className="text-xs font-bold text-gray-500 block mb-1">{t.pCost}</label>
+                                                        <input required type="number" placeholder="مثال: 5000" value={newProduct.costPrice} onChange={e=>setNewProduct({...newProduct, costPrice: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none bg-orange-50" />
+                                                    </div>
+                                                    <div className="w-1/2">
+                                                        <label className="text-xs font-bold text-gray-500 block mb-1">{t.pPrice}</label>
+                                                        <input required type="number" placeholder="مثال: 8000" value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none bg-green-50" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-gray-500 block mb-1">{t.deliveryFeeInput}</label>
+                                                    <input required type="number" value={newProduct.deliveryFee} onChange={e=>setNewProduct({...newProduct, deliveryFee: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none" />
+                                                </div>
                                                 <input required type="text" placeholder={t.pImg} value={newProduct.imageUrl} onChange={e=>setNewProduct({...newProduct, imageUrl: e.target.value})} className="w-full border p-3 rounded-lg focus:ring-2 outline-none" dir="ltr" />
                                                 <select value={newProduct.category} onChange={e=>setNewProduct({...newProduct, category: e.target.value})} className="w-full border p-3 rounded-lg outline-none">
                                                     {CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}
@@ -498,7 +612,8 @@
                                                         <div className="flex-1">
                                                             <span className="text-xs font-bold text-blue-600">{p.sku}</span>
                                                             <h4 className="font-bold line-clamp-1">{p.name}</h4>
-                                                            <p className="text-amazon-orange font-bold">{Number(p.price).toLocaleString()} {t.currency}</p>
+                                                            <p className="text-amazon-orange font-bold">السعر: {Number(p.price).toLocaleString()} {t.currency}</p>
+                                                            {p.costPrice && <p className="text-xs text-gray-500">التكلفة: {Number(p.costPrice).toLocaleString()} | الربح: {(Number(p.price) - Number(p.costPrice)).toLocaleString()}</p>}
                                                         </div>
                                                         <button onClick={()=>deleteProduct(p.id)} className="text-red-500 hover:bg-red-100 p-2 rounded font-bold">{t.delete}</button>
                                                     </div>
@@ -510,12 +625,24 @@
 
                                 {adminTab === 'sales' && (
                                     <div className="bg-white rounded-xl shadow-lg p-6">
-                                        <h3 className="text-2xl font-black mb-6">{t.sales} / {t.totalSales}</h3>
-                                        <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl text-center">
-                                            <p className="text-gray-600 font-bold text-lg mb-2">مجموع المبيعات (الطلبيات المقبولة)</p>
-                                            <p className="text-4xl font-black text-blue-700">
-                                                {orders.filter(o => o.status === 'accepted').reduce((acc, o) => acc + o.total, 0).toLocaleString()} {t.currency}
-                                            </p>
+                                        <h3 className="text-2xl font-black mb-6">{t.sales} / الإحصائيات</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="bg-blue-50 border-2 border-blue-200 p-8 rounded-2xl text-center shadow-sm">
+                                                <div className="text-blue-500 text-5xl mb-4">📈</div>
+                                                <p className="text-gray-700 font-black text-xl mb-2">{t.totalSales} (الطلبيات المقبولة)</p>
+                                                <p className="text-4xl font-black text-blue-800">
+                                                    {totalSalesSum.toLocaleString()} {t.currency}
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="bg-green-50 border-2 border-green-200 p-8 rounded-2xl text-center shadow-sm">
+                                                <div className="text-green-500 text-5xl mb-4">💰</div>
+                                                <p className="text-gray-700 font-black text-xl mb-2">{t.profit} (الطلبيات المقبولة)</p>
+                                                <p className="text-4xl font-black text-green-700">
+                                                    {totalProfitSum.toLocaleString()} {t.currency}
+                                                </p>
+                                                <p className="text-sm text-green-600 mt-2 font-bold">(يتم حسابه: سعر البيع - التكلفة)</p>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -587,9 +714,17 @@
                                 </div>
                                 {cart.length > 0 && (
                                     <div className="p-6 bg-gray-50 border-t shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
-                                        <div className="flex justify-between text-xl font-black mb-4">
+                                        <div className="flex justify-between text-lg font-bold text-gray-600 mb-1">
                                             <span>{t.total}:</span>
-                                            <span className="text-amazon-orange">{cartTotal.toLocaleString()} {t.currency}</span>
+                                            <span>{cartTotalItemsPrice.toLocaleString()} {t.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between text-lg font-bold text-gray-600 mb-3 border-b pb-2">
+                                            <span>أجور التوصيل:</span>
+                                            <span>{cartDeliveryFee.toLocaleString()} {t.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between text-2xl font-black mb-4">
+                                            <span>الكلي:</span>
+                                            <span className="text-amazon-orange">{cartGrandTotal.toLocaleString()} {t.currency}</span>
                                         </div>
                                         <button onClick={()=>{setIsCartOpen(false); setIsCheckoutOpen(true);}} className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-black py-4 rounded-xl shadow-lg transition-transform hover:scale-[1.02]">
                                             {t.checkout}
@@ -606,10 +741,14 @@
                             <div className="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 shadow-2xl relative" onClick={e=>e.stopPropagation()}>
                                 <button onClick={()=>setIsCheckoutOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold">X</button>
                                 <h2 className="text-2xl font-black mb-6 text-amazon-light border-b pb-2">{t.checkoutTitle}</h2>
-                                <form onSubmit={handleOrderSubmit} className="space-y-5">
+                                <form onSubmit={handleOrderSubmit} className="space-y-4">
                                     <div>
                                         <label className="block font-bold mb-1 text-gray-700">{t.cName}</label>
                                         <input required type="text" value={orderForm.name} onChange={e=>setOrderForm({...orderForm, name: e.target.value})} className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-amazon-orange outline-none bg-gray-50 focus:bg-white transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block font-bold mb-1 text-gray-700">{t.cPhone}</label>
+                                        <input required type="tel" value={orderForm.phone} onChange={e=>setOrderForm({...orderForm, phone: e.target.value})} className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-amazon-orange outline-none bg-gray-50 focus:bg-white transition-colors text-left" dir="ltr" placeholder="07..." />
                                     </div>
                                     <div>
                                         <label className="block font-bold mb-1 text-gray-700">{t.cAddress}</label>
@@ -619,10 +758,22 @@
                                         <label className="block font-bold mb-1 text-gray-700">{t.cNotes}</label>
                                         <textarea value={orderForm.notes} onChange={e=>setOrderForm({...orderForm, notes: e.target.value})} className="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-amazon-orange outline-none bg-gray-50 focus:bg-white transition-colors" rows="2"></textarea>
                                     </div>
-                                    <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg flex justify-between items-center">
-                                        <span className="font-bold text-orange-800">المطلوب دفعه عند الاستلام:</span>
-                                        <span className="text-xl font-black text-amazon-orange">{cartTotal.toLocaleString()} {t.currency}</span>
+                                    
+                                    <div className="bg-gray-100 p-4 rounded-lg space-y-2 mb-4">
+                                        <div className="flex justify-between font-bold text-gray-600">
+                                            <span>مجموع السلع:</span>
+                                            <span>{cartTotalItemsPrice.toLocaleString()} {t.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between font-bold text-gray-600 border-b border-gray-300 pb-2">
+                                            <span>التوصيل:</span>
+                                            <span>{cartDeliveryFee.toLocaleString()} {t.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between font-black text-xl text-amazon-orange pt-1">
+                                            <span>المطلوب دفعه:</span>
+                                            <span>{cartGrandTotal.toLocaleString()} {t.currency}</span>
+                                        </div>
                                     </div>
+                                    
                                     <button type="submit" className="w-full bg-amazon hover:bg-amazon-light text-white font-black py-4 rounded-xl shadow-lg transition-transform hover:-translate-y-1 text-lg">
                                         {t.confirmOrder}
                                     </button>
