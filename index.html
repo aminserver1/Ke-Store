@@ -176,6 +176,7 @@
             
             const [printingOrder, setPrintingOrder] = useState(null);
             const [printType, setPrintType] = useState('invoice'); 
+            const [isUploading, setIsUploading] = useState(false); // دەرهێنراو بۆ باری وێنە
 
             const t = TR[lang];
             let clickCount = useRef(0);
@@ -244,6 +245,34 @@
                 setTimeout(() => setToastMsg(''), 3000);
             };
 
+            // کرداری بارکردنی وێنە بۆ ImgBB
+            const uploadImageToImgbb = async (file) => {
+                const apiKey = "db9c326e003ea2a225c2a45090862a94";
+                const formData = new FormData();
+                formData.append("image", file);
+
+                try {
+                    setIsUploading(true);
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        return data.data.url;
+                    } else {
+                        showToast(lang === 'ku' ? "هەڵەیەک ڕوویدا لە بارکردنی وێنەکە" : "فشل في رفع الصورة");
+                        return null;
+                    }
+                } catch (error) {
+                    console.error("Upload error:", error);
+                    showToast(lang === 'ku' ? "هەڵەیەک ڕوویدا لە بارکردنی وێنەکە" : "فشل في رفع الصورة");
+                    return null;
+                } finally {
+                    setIsUploading(false);
+                }
+            };
+
             const addToCart = (product) => {
                 const exist = cart.find(x => x.id === product.id);
                 if (exist) setCart(cart.map(x => x.id === product.id ? { ...exist, qty: exist.qty + 1 } : x));
@@ -301,6 +330,7 @@
                     deliveryFee: Number(newProduct.deliveryFee || 5000)
                 });
                 setNewProduct({ name: '', price: '', costPrice: '', deliveryFee: 5000, imageUrl: '', description: '', category: 'إلكترونيات' });
+                document.getElementById('productImageInput').value = ''; // پاککردنەوەی فایلەکە
                 showToast("تمت إضافة المنتج بنجاح");
             };
 
@@ -308,6 +338,7 @@
                 e.preventDefault();
                 db.ref('KESTOREnotification').push({ ...newNotif, date: new Date().toISOString() });
                 setNewNotif({ title: '', message: '', imageUrl: '' });
+                if(document.getElementById('notifImageInput')) document.getElementById('notifImageInput').value = '';
                 showToast("تم إرسال الإشعار");
             };
 
@@ -315,6 +346,7 @@
                 e.preventDefault();
                 db.ref('sliders').push(newSlider);
                 setNewSlider({ title: '', imageUrl: '' });
+                document.getElementById('sliderImageInput').value = '';
                 showToast("تم إضافة العرض");
             };
 
@@ -619,7 +651,7 @@
                                                                 </>
                                                             )}
                                                             <button onClick={()=>handlePrint(order, 'invoice')} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold shadow-sm text-sm flex items-center gap-1 transition-colors">
-                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                                                 {t.printInvoice}
                                                             </button>
                                                             <button onClick={()=>handlePrint(order, 'address')} className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded font-bold shadow-sm text-sm flex items-center gap-1 transition-colors">
@@ -649,19 +681,28 @@
                                                 <input required type="number" placeholder={t.pCost} value={newProduct.costPrice} onChange={e=>setNewProduct({...newProduct, costPrice: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" />
                                                 <input required type="number" placeholder={t.deliveryFeeInput} value={newProduct.deliveryFee} onChange={e=>setNewProduct({...newProduct, deliveryFee: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" />
                                                 
-                                                {/* گۆڕانکاری بۆ دانانی لینکی وێنە */}
-                                                <input required type="text" placeholder={t.pImg} value={newProduct.imageUrl} onChange={e=>setNewProduct({...newProduct, imageUrl: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" />
-                                                {newProduct.imageUrl && (
-                                                    <div className="mt-2">
-                                                        <img src={newProduct.imageUrl} className="h-20 w-auto object-contain rounded border border-gray-200" alt="Preview"/>
-                                                    </div>
-                                                )}
+                                                {/* گۆڕانکاری لێرە: بارکردنی وێنە لە جیاتی دانانی لینک */}
+                                                <div className="w-full border border-gray-300 p-2 rounded-lg bg-gray-50 flex flex-col gap-2">
+                                                    <label className="text-sm font-bold text-gray-600">{t.pImg} (هەڵبژاردنی فایلی وێنە)</label>
+                                                    <input id="productImageInput" required={!newProduct.imageUrl} type="file" accept="image/*" onChange={async (e) => {
+                                                        if(e.target.files && e.target.files[0]) {
+                                                            const url = await uploadImageToImgbb(e.target.files[0]);
+                                                            if(url) setNewProduct({...newProduct, imageUrl: url});
+                                                        }
+                                                    }} className="w-full text-sm outline-none" />
+                                                    {isUploading && <p className="text-xs text-blue-600 font-bold animate-pulse">{t.uploading}</p>}
+                                                    {newProduct.imageUrl && !isUploading && (
+                                                        <div className="mt-2">
+                                                            <img src={newProduct.imageUrl} className="h-20 w-auto object-contain rounded border border-gray-200" alt="Preview"/>
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <select value={newProduct.category} onChange={e=>setNewProduct({...newProduct, category: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none">
                                                     {CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}
                                                 </select>
                                                 <textarea placeholder={t.pDesc} value={newProduct.description} onChange={e=>setNewProduct({...newProduct, description: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" rows="3"></textarea>
-                                                <button type="submit" className="w-full text-white font-bold py-3 rounded-lg transition-colors bg-amazon hover:bg-amazon-light">{t.publish}</button>
+                                                <button disabled={isUploading} type="submit" className={`w-full text-white font-bold py-3 rounded-lg transition-colors ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-amazon hover:bg-amazon-light'}`}>{t.publish}</button>
                                             </form>
                                         </div>
                                         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-h-[600px] overflow-y-auto hide-scroll">
@@ -701,11 +742,20 @@
                                                 <input required type="text" placeholder={t.notifTitle} value={newNotif.title} onChange={e=>setNewNotif({...newNotif, title: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none focus:border-blue-500" />
                                                 <textarea required placeholder={t.notifMsg} value={newNotif.message} onChange={e=>setNewNotif({...newNotif, message: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none focus:border-blue-500" rows="3"></textarea>
                                                 
-                                                {/* گۆڕانکاری بۆ دانانی لینکی وێنەی ئاگادارکردنەوە */}
-                                                <input type="text" placeholder={lang === 'ku' ? "لینکی وێنە (ئارەزوومەندانە)" : "رابط الصورة (اختياري)"} value={newNotif.imageUrl} onChange={e=>setNewNotif({...newNotif, imageUrl: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none focus:border-blue-500" />
-                                                {newNotif.imageUrl && <img src={newNotif.imageUrl} className="h-16 w-16 object-cover rounded border mt-2" alt="Preview"/>}
+                                                {/* گۆڕانکاری بۆ بەشی وێنەی ئاگادارکردنەوە */}
+                                                <div className="w-full border border-gray-300 p-2 rounded-lg bg-gray-50 flex flex-col gap-2">
+                                                    <label className="text-sm font-bold text-gray-600">وێنە (ئارەزوومەندانە)</label>
+                                                    <input id="notifImageInput" type="file" accept="image/*" onChange={async (e) => {
+                                                        if(e.target.files && e.target.files[0]) {
+                                                            const url = await uploadImageToImgbb(e.target.files[0]);
+                                                            if(url) setNewNotif({...newNotif, imageUrl: url});
+                                                        }
+                                                    }} className="w-full text-sm outline-none" />
+                                                    {isUploading && <p className="text-xs text-blue-600 font-bold animate-pulse">{t.uploading}</p>}
+                                                    {newNotif.imageUrl && !isUploading && <img src={newNotif.imageUrl} className="h-16 w-16 object-cover rounded border" alt="Preview"/>}
+                                                </div>
 
-                                                <button type="submit" className="w-full text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2 transition-colors bg-blue-600 hover:bg-blue-700">
+                                                <button disabled={isUploading} type="submit" className={`w-full text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2 transition-colors ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
                                                     إرسال الإشعار
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                                                 </button>
@@ -738,11 +788,20 @@
                                             <form onSubmit={handleAddSlider} className="space-y-4">
                                                 <input type="text" placeholder={t.offerTitle} value={newSlider.title} onChange={e=>setNewSlider({...newSlider, title: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" />
                                                 
-                                                {/* گۆڕانکاری بۆ دانانی لینکی وێنەی سلایدەر */}
-                                                <input required type="text" placeholder={t.pImg} value={newSlider.imageUrl} onChange={e=>setNewSlider({...newSlider, imageUrl: e.target.value})} className="w-full border border-gray-300 p-3 rounded-lg outline-none" />
-                                                {newSlider.imageUrl && <img src={newSlider.imageUrl} className="h-16 w-32 object-cover rounded border mt-2" alt="Preview"/>}
+                                                {/* گۆڕانکاری بۆ بەشی وێنەی سلایدەر */}
+                                                <div className="w-full border border-gray-300 p-2 rounded-lg bg-gray-50 flex flex-col gap-2">
+                                                    <label className="text-sm font-bold text-gray-600">{t.pImg} (هەڵبژاردنی فایلی وێنە)</label>
+                                                    <input id="sliderImageInput" required={!newSlider.imageUrl} type="file" accept="image/*" onChange={async (e) => {
+                                                        if(e.target.files && e.target.files[0]) {
+                                                            const url = await uploadImageToImgbb(e.target.files[0]);
+                                                            if(url) setNewSlider({...newSlider, imageUrl: url});
+                                                        }
+                                                    }} className="w-full text-sm outline-none" />
+                                                    {isUploading && <p className="text-xs text-blue-600 font-bold animate-pulse">{t.uploading}</p>}
+                                                    {newSlider.imageUrl && !isUploading && <img src={newSlider.imageUrl} className="h-16 w-32 object-cover rounded border" alt="Preview"/>}
+                                                </div>
 
-                                                <button type="submit" className="w-full text-white font-bold py-3 rounded-lg transition-colors bg-purple-600 hover:bg-purple-700">إضافة العرض للواجهة</button>
+                                                <button disabled={isUploading} type="submit" className={`w-full text-white font-bold py-3 rounded-lg transition-colors ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}>إضافة العرض للواجهة</button>
                                             </form>
                                         </div>
                                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
