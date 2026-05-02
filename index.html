@@ -76,7 +76,8 @@
         }
         const db = firebase.database();
 
-        const CATEGORIES = ['الكل', 'إلكترونيات', 'طيور وزينة', 'لوازم سيارات', 'منزل ومطبخ', 'أخرى'];
+        // گۆڕانکاری لێرەدا کراوە: زیادکردنی کارەبایی و تەکنەلۆجیا و لابردنی باڵندەکان
+        const CATEGORIES = ['الكل', 'إلكترونيات', 'تكنولوجيا', 'كهربائيات', 'لوازم سيارات', 'منزل ومطبخ', 'أخرى'];
 
         const TR = {
             ar: {
@@ -279,7 +280,10 @@
             );
 
             const acceptedOrders = orders.filter(o => o.status === 'accepted');
-            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.total) || Number(o.cartTotal) || 0), 0);
+            
+            // گۆڕانکاری لێرەدا کراوە: تەنها نرخی کاڵاکان کۆدەکرێتەوە بەبێ نرخی گەیاندن
+            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.cartTotal) || 0), 0);
+            
             const totalProfitSum = acceptedOrders.reduce((acc, o) => {
                 let orderProfit = 0;
                 if(o.items && Array.isArray(o.items)) {
@@ -531,7 +535,15 @@
                                                     <div className="mb-4 bg-white p-3 rounded-lg border shadow-sm">
                                                         {(order.items || []).map((item, i) => (
                                                             <div key={i} className="flex justify-between text-sm py-2 border-b last:border-0 items-center">
-                                                                <span><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1 font-bold">{item.qty || 1}x</span> {item.name || '---'} <span className="text-xs text-gray-400">({item.sku || '---'})</span></span>
+                                                                <span 
+                                                                    className="cursor-pointer hover:text-blue-600 transition-colors flex items-center" 
+                                                                    onClick={() => setSelectedProduct(item)}
+                                                                    title="عرض التفاصيل / پیشاندانی وردەکاری"
+                                                                >
+                                                                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1 font-bold">{item.qty || 1}x</span> 
+                                                                    <span className="underline decoration-dashed mx-1">{item.name || '---'}</span> 
+                                                                    <span className="text-xs text-gray-400">({item.sku || '---'})</span>
+                                                                </span>
                                                                 <span className="font-bold">{((Number(item.price)||0) * (item.qty||1)).toLocaleString()} {t.currency}</span>
                                                             </div>
                                                         ))}
@@ -628,7 +640,7 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="bg-blue-50 border-2 border-blue-200 p-8 rounded-2xl text-center shadow-sm">
                                                 <div className="text-blue-500 text-5xl mb-4">📈</div>
-                                                <p className="text-gray-700 font-black text-xl mb-2">{t.totalSales} (الطلبيات المقبولة)</p>
+                                                <p className="text-gray-700 font-black text-xl mb-2">{t.totalSales} (بەبێ کرێی گەیاندن)</p>
                                                 <p className="text-4xl font-black text-blue-800">
                                                     {totalSalesSum.toLocaleString()} {t.currency}
                                                 </p>
@@ -670,9 +682,11 @@
                                     <div className="prose prose-sm mb-6 text-gray-600 border-t pt-4">
                                         <p>{selectedProduct.description || 'لا يوجد وصف متاح.'}</p>
                                     </div>
-                                    <button onClick={()=>{addToCart(selectedProduct); setSelectedProduct(null);}} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-black py-4 rounded-xl shadow-lg transition-transform hover:-translate-y-1 text-lg">
-                                        {t.addCart}
-                                    </button>
+                                    {page !== 'admin' && (
+                                        <button onClick={()=>{addToCart(selectedProduct); setSelectedProduct(null);}} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-black py-4 rounded-xl shadow-lg transition-transform hover:-translate-y-1 text-lg">
+                                            {t.addCart}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
