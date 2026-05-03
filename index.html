@@ -10,12 +10,7 @@
             theme: {
                 extend: {
                     colors: {
-                        amazon: {
-                            DEFAULT: '#131921',
-                            light: '#232f3e',
-                            yellow: '#febd69',
-                            orange: '#f90'
-                        }
+                        amazon: { DEFAULT: '#131921', light: '#232f3e', yellow: '#febd69', orange: '#f90' }
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
@@ -44,9 +39,15 @@
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e5e7eb; }
         .product-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #febd69; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .zoom-img { transition: transform 0.3s ease; cursor: zoom-in; }
-        .zoom-img:active { transform: scale(1.8); cursor: zoom-out; }
         
+        /* Zoom effect */
+        .zoom-container { overflow: hidden; position: relative; cursor: zoom-in; border-radius: 0.5rem; }
+        .zoom-img { transition: transform 0.4s ease; width: 100%; height: 100%; object-fit: contain; }
+        .zoom-container:hover .zoom-img { transform: scale(1.8); }
+        
+        .zoomed-fullscreen { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+        .zoomed-fullscreen img { max-width: 95vw; max-height: 95vh; object-fit: contain; transform: scale(1) !important; }
+
         @media print {
             body > *:not(#print-section) { display: none !important; }
             #print-section { display: block !important; position: absolute; top: 0; left: 0; width: 100%; color: black; background: white; padding: 20px; direction: rtl; }
@@ -81,57 +82,69 @@
             ar: {
                 home: "الرئيسية", logout: "تسجيل خروج", search: "بحث", 
                 cart: "عربة التسوق", emptyCart: "عربة التسوق الخاصة بك فارغة", addCart: "أضف إلى العربة", 
-                total: "مجموع السلع", checkout: "متابعة عملية الشراء", currency: "د.ع", welcome: "مرحباً بك في", 
+                total: "مجموع السلع", checkout: "متابعة الشراء", currency: "د.ع", welcome: "مرحباً بك في", 
                 sub: "ملايين المنتجات. توصيل سريع. أسعار تنافسية.", langLabel: "عربي", adminTitle: "إدارة النظام", 
-                addProduct: "إضافة منتج", pName: "اسم المنتج", pPrice: "سعر البيع للزبون", pCost: "تكلفة المنتج (للحسابات)", 
-                deliveryFeeInput: "أجور التوصيل", pImg: "رابط الصورة", pDesc: "الوصف والمواصفات", pCat: "القسم", publish: "نشر المنتج", 
+                addProduct: "إضافة منتج", pName: "اسم المنتج", pPrice: "سعر البيع", pCost: "تكلفة المنتج", 
+                deliveryFeeInput: "أجور التوصيل", pImg: "رابط الصورة 1", pImg2: "صورة 2 (اختياري)", pImg3: "صورة 3 (اختياري)", pImg4: "صورة 4 (اختياري)", 
+                pDesc: "الوصف والمواصفات", pCat: "القسم", publish: "نشر المنتج", 
                 checkoutTitle: "معلومات التوصيل", cName: "الاسم الكامل", cPhone: "رقم الهاتف", cAddress: "العنوان", 
-                cNotes: "ملاحظات للمندوب", confirmOrder: "تأكيد الطلب", successMsg: "تم استلام طلبك بنجاح!", 
-                successSub: "سنتواصل معك قريباً لتأكيد الطلب. يرجى الاحتفاظ برقم القائمة.", backToHome: "الاستمرار في التسوق", addedToCart: "تمت الإضافة", 
+                cNotes: "ملاحظات للتوصيل", confirmOrder: "تأكيد الطلب", successMsg: "تم استلام طلبك بنجاح!", 
+                successSub: "سنتواصل معك قريباً. يرجى الاحتفاظ برقم القائمة.", backToHome: "الاستمرار في التسوق", addedToCart: "تمت الإضافة", 
                 productDetails: "التفاصيل", buyNow: "اشترِ الآن", account: "الحساب", outOfStock: "نفذت الكمية",
-                orders: "الطلبيات", sales: "المبيعات", products: "المنتجات", notifications: "الإشعارات", slider: "العروض",
-                accept: "قبول الطلب", reject: "رفض الطلب", printInvoice: "طباعة القائمة", printAddress: "طباعة العنوان", 
+                orders: "الطلبيات", sales: "المبيعات", products: "المنتجات", notifications: "الإشعارات", slider: "العروض", discounts: "الخصومات",
+                accept: "قبول", reject: "رفض", printInvoice: "طباعة", printAddress: "العنوان", 
                 pending: "قيد الانتظار", accepted: "مقبول", rejected: "مرفوض", invoiceNo: "رقم القائمة", 
-                delete: "حذف", adminSearch: "ابحث بالاسم/الرقم...", orderSearch: "ابحث برقم القائمة/الهاتف...", 
-                totalSales: "إجمالي المبيعات", profit: "الأرباح", noNotif: "لا توجد إشعارات حالياً", sendNotif: "إرسال إشعار",
-                notifTitle: "عنوان الإشعار", notifMsg: "نص الإشعار", addOffer: "إضافة عرض", offerTitle: "عنوان العرض",
-                share: "مشاركة", copyLink: "تم نسخ الرابط بنجاح", contactUs: "اتصل بنا", newItem: "جديد", searchItem: "ابحث عن منتج لربطه..."
+                delete: "حذف", adminSearch: "ابحث بالاسم/الرقم...", orderSearch: "ابحث برقم القائمة...", 
+                totalSales: "المبيعات المقبولة", profit: "الأرباح", pendingCount: "الطلبات المعلقة", acceptedCount: "الطلبات المقبولة",
+                noNotif: "لا توجد إشعارات", sendNotif: "إرسال إشعار", notifTitle: "عنوان الإشعار", notifMsg: "النص", notifImg: "رابط صورة الإشعار (اختياري)",
+                addOffer: "إضافة عرض", offerTitle: "العنوان", share: "مشاركة", copyLink: "تم النسخ", contactUs: "اتصل بنا", newItem: "جديد", 
+                searchItem: "اختر منتجاً لربطه:", selectedItem: "تم اختيار:",
+                discountCodeTitle: "إضافة كود خصم", discountCode: "كود الخصم", discountPercent: "نسبة الخصم (%)", addDiscount: "إضافة الكود",
+                haveDiscount: "لديك كود خصم؟", applyDiscount: "تطبيق", discountApplied: "تم الخصم:", invalidCode: "كود غير صالح", discountAmount: "مبلغ الخصم"
             },
             ku: {
                 home: "سەرەکی", logout: "چوونەدەرەوە", search: "گەڕان", 
                 cart: "سەبەتە", emptyCart: "سەبەتەکەت بەتاڵە", addCart: "بۆ ناو سەبەتە", total: "کۆی کاڵاکان", 
                 checkout: "کڕین", currency: "د.ع", welcome: "بەخێربێیت بۆ", sub: "ملیۆنان کاڵا. گەیاندنی خێرا.", 
                 langLabel: "کوردی", adminTitle: "بەڕێوەبردنی سیستەم", addProduct: "زیادکردنی کاڵا", pName: "ناوی کاڵا", 
-                pPrice: "نرخی فرۆشتن", pCost: "نرخی کڕین (بۆ قازانج)", deliveryFeeInput: "کرێی گەیاندن", pImg: "لینکی وێنە", 
+                pPrice: "نرخی فرۆشتن", pCost: "نرخی کڕین (قازانج)", deliveryFeeInput: "کرێی گەیاندن", pImg: "لینکی وێنەی ١", 
+                pImg2: "وێنەی ٢ (ئارەزوومەندانە)", pImg3: "وێنەی ٣", pImg4: "وێنەی ٤", 
                 pDesc: "وەسف و مواسەفات", pCat: "بەش", publish: "بڵاوکردنەوە", checkoutTitle: "زانیاری گەیاندن", cName: "ناوی تەواو", 
-                cPhone: "مۆبایل", cAddress: "ناونیشانی تەواو", cNotes: "تێبینی بۆ گەیاندنکار", confirmOrder: "تأکیدکردنەوەی داواکاری", 
-                successMsg: "داواکارییەکەت بە سەرکەوتوویی وەرگیرا!", successSub: "بەم زووانە پەیوەندیت پێوە دەکەین. تکایە کۆدی پسوڵەکە بپارێزە.", backToHome: "گەڕانەوە بۆ فرۆشگا", 
+                cPhone: "مۆبایل", cAddress: "ناونیشانی تەواو", cNotes: "تێبینی", confirmOrder: "تأکیدکردنەوەی داواکاری", 
+                successMsg: "داواکارییەکەت وەرگیرا!", successSub: "بەم زووانە پەیوەندیت پێوە دەکەین. کۆدی پسوڵەکە بپارێزە.", backToHome: "گەڕانەوە بۆ فرۆشگا", 
                 addedToCart: "خرایە سەبەتەکەوە", productDetails: "وردەکاری", buyNow: "ئێستا بیکڕە", account: "هەژمار", outOfStock: "نەماوە", 
-                orders: "داواکارییەکان", sales: "فرۆشەکان", products: "کاڵاکان", notifications: "ئاگادارکردنەوەکان", slider: "ئۆفەرەکان",
-                accept: "قبوڵکردن", reject: "ڕەتکردنەوە", printInvoice: "چاپکردنی پسوڵە", printAddress: "چاپکردنی ناونیشان", 
-                pending: "لە چاوەڕوانیدایە", accepted: "قبوڵکراو", rejected: "ڕەتکراوە", invoiceNo: "ژمارەی پسوڵە (کۆد)", 
-                delete: "سڕینەوە", adminSearch: "گەڕان بەناو یان ژمارە...", orderSearch: "گەڕان بە ژمارەی داواکاری یان مۆبایل...", 
-                totalSales: "کۆی فرۆشەکان", profit: "قازانج", noNotif: "هیچ ئاگادارکردنەوەیەک نییە", sendNotif: "ناردنی ئاگادارکردنەوە",
-                notifTitle: "سەردێڕی نامە", notifMsg: "دەقی نامە", addOffer: "زیادکردنی ئۆفەر", offerTitle: "سەردێڕی ئۆفەر",
-                share: "شەیرکردن", copyLink: "لینکەکە کۆپیکرا", contactUs: "پەیوەندیکردن", newItem: "نوێ", searchItem: "بۆ گەڕان بەدوای کاڵادا..."
+                orders: "داواکارییەکان", sales: "فرۆشەکان", products: "کاڵاکان", notifications: "ئاگادارکردنەوە", slider: "ئۆفەرەکان", discounts: "داشکاندن",
+                accept: "قبوڵکردن", reject: "ڕەتکردنەوە", printInvoice: "چاپکردن", printAddress: "ناونیشان", 
+                pending: "لە چاوەڕوانیدایە", accepted: "قبوڵکراو", rejected: "ڕەتکراوە", invoiceNo: "کۆدی پسوڵە", 
+                delete: "سڕینەوە", adminSearch: "گەڕان بەناو...", orderSearch: "گەڕان بە مۆبایل...", 
+                totalSales: "فرۆشە قبوڵکراوەکان", profit: "قازانج", pendingCount: "لە چاوەڕوانیدا", acceptedCount: "قبوڵکراوەکان",
+                noNotif: "هیچ ئاگادارکردنەوەیەک نییە", sendNotif: "ناردنی نامە", notifTitle: "سەردێڕ", notifMsg: "دەق", notifImg: "وێنەی نامە (ئارەزوومەندانە)",
+                addOffer: "زیادکردنی ئۆفەر", offerTitle: "سەردێڕ", share: "شەیرکردن", copyLink: "کۆپیکرا", contactUs: "پەیوەندیکردن", newItem: "نوێ", 
+                searchItem: "هەڵبژاردنی کاڵا:", selectedItem: "هەڵبژێردراو:",
+                discountCodeTitle: "کۆدی داشکاندن زیادبکە", discountCode: "کۆدی داشکاندن", discountPercent: "ڕێژەی داشکاندن (%)", addDiscount: "زیادکردنی کۆد",
+                haveDiscount: "کۆدی داشکاندنت هەیە؟", applyDiscount: "جێبەجێکردن", discountApplied: "داشکاندن کرا:", invalidCode: "کۆدەکە هەڵەیە", discountAmount: "بڕی داشکاندن"
             },
             en: {
                 home: "Home", logout: "Logout", search: "Search", 
-                cart: "Cart", emptyCart: "Your cart is empty", addCart: "Add to Cart", total: "Total", 
+                cart: "Cart", emptyCart: "Cart is empty", addCart: "Add to Cart", total: "Total", 
                 checkout: "Checkout", currency: "IQD", welcome: "Welcome to", sub: "Millions of products. Fast delivery.", 
-                langLabel: "English", adminTitle: "Admin Panel", addProduct: "Add Product", pName: "Product Name", 
-                pPrice: "Selling Price", pCost: "Cost Price", deliveryFeeInput: "Delivery Fee", pImg: "Image URL", 
-                pDesc: "Description & Specs", pCat: "Category", publish: "Publish", checkoutTitle: "Delivery Info", cName: "Full Name", 
-                cPhone: "Phone", cAddress: "Full Address", cNotes: "Notes", confirmOrder: "Confirm Order", 
-                successMsg: "Order Received Successfully!", successSub: "We will contact you soon. Please keep your invoice number.", backToHome: "Continue Shopping", 
-                addedToCart: "Added to Cart", productDetails: "Details", buyNow: "Buy Now", account: "Account", outOfStock: "Out of Stock", 
-                orders: "Orders", sales: "Sales", products: "Products", notifications: "Notifications", slider: "Offers",
-                accept: "Accept", reject: "Reject", printInvoice: "Print Invoice", printAddress: "Print Address", 
+                langLabel: "English", adminTitle: "Admin Panel", addProduct: "Add Product", pName: "Name", 
+                pPrice: "Price", pCost: "Cost", deliveryFeeInput: "Delivery Fee", pImg: "Image 1 URL", 
+                pImg2: "Image 2 (Optional)", pImg3: "Image 3 (Optional)", pImg4: "Image 4 (Optional)", 
+                pDesc: "Description", pCat: "Category", publish: "Publish", checkoutTitle: "Delivery Info", cName: "Name", 
+                cPhone: "Phone", cAddress: "Address", cNotes: "Notes", confirmOrder: "Confirm Order", 
+                successMsg: "Order Received!", successSub: "We will contact you. Keep your invoice number.", backToHome: "Shop More", 
+                addedToCart: "Added", productDetails: "Details", buyNow: "Buy Now", account: "Account", outOfStock: "Out of Stock", 
+                orders: "Orders", sales: "Sales", products: "Products", notifications: "Notifications", slider: "Offers", discounts: "Coupons",
+                accept: "Accept", reject: "Reject", printInvoice: "Print", printAddress: "Address", 
                 pending: "Pending", accepted: "Accepted", rejected: "Rejected", invoiceNo: "Invoice No", 
-                delete: "Delete", adminSearch: "Search name/sku...", orderSearch: "Search Order/Phone...", 
-                totalSales: "Total Sales", profit: "Profit", noNotif: "No notifications yet", sendNotif: "Send Notification",
-                notifTitle: "Title", notifMsg: "Message content", addOffer: "Add Offer", offerTitle: "Offer Title",
-                share: "Share", copyLink: "Link copied successfully", contactUs: "Contact Us", newItem: "NEW", searchItem: "Search product to link..."
+                delete: "Delete", adminSearch: "Search...", orderSearch: "Search Order...", 
+                totalSales: "Accepted Sales", profit: "Profit", pendingCount: "Pending Orders", acceptedCount: "Accepted Orders",
+                noNotif: "No notifications", sendNotif: "Send Notification", notifTitle: "Title", notifMsg: "Message", notifImg: "Image URL (Optional)",
+                addOffer: "Add Offer", offerTitle: "Title", share: "Share", copyLink: "Copied", contactUs: "Contact Us", newItem: "NEW", 
+                searchItem: "Select item to link:", selectedItem: "Selected:",
+                discountCodeTitle: "Add Coupon", discountCode: "Code", discountPercent: "Discount (%)", addDiscount: "Add Coupon",
+                haveDiscount: "Have a coupon code?", applyDiscount: "Apply", discountApplied: "Discount:", invalidCode: "Invalid Code", discountAmount: "Discount Amt"
             }
         };
 
@@ -158,6 +171,7 @@
             const [orders, setOrders] = useState([]);
             const [notifications, setNotifications] = useState([]);
             const [sliders, setSliders] = useState([]);
+            const [discounts, setDiscounts] = useState([]);
             
             const [cart, setCart] = useState([]);
             const [isCartOpen, setIsCartOpen] = useState(false);
@@ -168,6 +182,8 @@
             
             const [selectedProduct, setSelectedProduct] = useState(null); 
             const [selectedQty, setSelectedQty] = useState(1);
+            const [activeImage, setActiveImage] = useState('');
+            const [isFullscreenZoom, setIsFullscreenZoom] = useState(false);
             
             const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
             const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -175,18 +191,20 @@
             
             const [toastMsg, setToastMsg] = useState('');
             const [orderForm, setOrderForm] = useState({ name: '', phone: '', address: '', notes: '' });
+            const [inputCode, setInputCode] = useState('');
+            const [appliedDiscount, setAppliedDiscount] = useState(null); // {code, percentage}
 
             const [adminTab, setAdminTab] = useState('orders');
             const [adminSearch, setAdminSearch] = useState('');
-            const [orderSearchText, setOrderSearchText] = useState('');
             const [sliderProductSearch, setSliderProductSearch] = useState('');
+            const [selectedSliderProduct, setSelectedSliderProduct] = useState(null);
             
-            const [newProduct, setNewProduct] = useState({ name: '', price: '', costPrice: '', deliveryFee: 5000, imageUrl: '', description: '', category: 'إلكترونيات' });
+            const [newProduct, setNewProduct] = useState({ name: '', price: '', costPrice: '', deliveryFee: 5000, imageUrl: '', imageUrl2: '', imageUrl3: '', imageUrl4: '', description: '', category: 'إلكترونيات' });
             const [newNotif, setNewNotif] = useState({ title: '', message: '', imageUrl: '' });
             const [newSlider, setNewSlider] = useState({ title: '', imageUrl: '', productId: '' });
+            const [newDiscount, setNewDiscount] = useState({ code: '', percentage: '' });
             
             const [printingOrder, setPrintingOrder] = useState(null);
-            const [printType, setPrintType] = useState('invoice'); 
 
             const t = TR[lang] || TR['ar'];
             let clickCount = useRef(0);
@@ -201,9 +219,12 @@
                         setProducts(prods);
                         const params = new URLSearchParams(window.location.search);
                         const pid = params.get('productId');
-                        if (pid) {
+                        if (pid && !selectedProduct) {
                             const found = prods.find(p => p.id === pid);
-                            if (found) setSelectedProduct(found);
+                            if (found) {
+                                setSelectedProduct(found);
+                                setActiveImage(found.imageUrl);
+                            }
                             window.history.replaceState({}, document.title, window.location.pathname);
                         }
                     }
@@ -213,7 +234,7 @@
                 const oRef = db.ref('orders');
                 oRef.on('value', snap => {
                     const data = snap.val();
-                    if (data) setOrders(Object.keys(data).map(key => ({ id: key, ...data[key] })));
+                    if (data) setOrders(Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse());
                     else setOrders([]);
                 });
 
@@ -231,15 +252,21 @@
                     else setSliders([]);
                 });
 
-                return () => { pRef.off(); oRef.off(); nRef.off(); sRef.off(); };
+                const dRef = db.ref('discounts');
+                dRef.on('value', snap => {
+                    const data = snap.val();
+                    if (data) setDiscounts(Object.keys(data).map(key => ({ id: key, ...data[key] })));
+                    else setDiscounts([]);
+                });
+
+                return () => { pRef.off(); oRef.off(); nRef.off(); sRef.off(); dRef.off(); };
             }, []);
 
             const isNew = (dateString) => {
                 if (!dateString) return false;
                 const created = new Date(dateString);
                 const now = new Date();
-                const diff = (now - created) / (1000 * 60 * 60 * 24);
-                return diff <= 7;
+                return ((now - created) / (1000 * 60 * 60 * 24)) <= 7;
             };
 
             const handleSecretLogin = () => {
@@ -254,8 +281,6 @@
                                 setIsAdmin(true);
                                 setPage('admin');
                                 showToast("بەخێربێیت بۆ پەناڵی ئەدمین");
-                            } else {
-                                alert("Authentication Failed");
                             }
                         } else {
                             setPage('admin');
@@ -275,16 +300,8 @@
 
             const handleShare = (productId) => {
                 const url = `${window.location.origin}${window.location.pathname}?productId=${productId}`;
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'KESTORE',
-                        text: 'شاهد هذا المنتج المميز / سەیری ئەم کاڵایە بکە',
-                        url: url
-                    }).catch(console.error);
-                } else {
-                    navigator.clipboard.writeText(url);
-                    showToast(t.copyLink);
-                }
+                if (navigator.share) navigator.share({ title: 'KESTORE', url: url }).catch(console.error);
+                else { navigator.clipboard.writeText(url); showToast(t.copyLink); }
             };
 
             const addToCart = (product, qty = 1) => {
@@ -292,36 +309,59 @@
                 if (exist) setCart(cart.map(x => x.id === product.id ? { ...exist, qty: exist.qty + qty } : x));
                 else setCart([...cart, { ...product, qty: qty }]);
                 showToast(t.addedToCart);
+                setAppliedDiscount(null); // Reset discount when cart changes
             };
 
             const updateQty = (id, amount) => {
                 const exist = cart.find(x => x.id === id);
                 if (exist.qty === 1 && amount === -1) setCart(cart.filter(x => x.id !== id));
                 else setCart(cart.map(x => x.id === id ? { ...exist, qty: exist.qty + amount } : x));
+                setAppliedDiscount(null);
+            };
+
+            const applyDiscountCode = () => {
+                const codeObj = discounts.find(d => d.code.toLowerCase() === inputCode.toLowerCase());
+                if (codeObj) {
+                    setAppliedDiscount({ code: codeObj.code, percentage: Number(codeObj.percentage) });
+                    showToast(`${t.discountApplied} ${codeObj.percentage}%`);
+                } else {
+                    showToast(t.invalidCode);
+                    setAppliedDiscount(null);
+                }
             };
 
             const cartTotalItemsPrice = cart.reduce((acc, item) => acc + ((Number(item.price)||0) * item.qty), 0);
             const cartDeliveryFee = cart.length > 0 ? Math.max(...cart.map(item => Number(item.deliveryFee) || 5000)) : 0;
-            const cartGrandTotal = cartTotalItemsPrice + cartDeliveryFee;
+            
+            const discountAmountVal = appliedDiscount ? (cartTotalItemsPrice * (appliedDiscount.percentage / 100)) : 0;
+            const cartGrandTotal = (cartTotalItemsPrice - discountAmountVal) + cartDeliveryFee;
 
             const handleOrderSubmit = (e) => {
                 e.preventDefault();
                 const invoiceId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
-                db.ref('orders').push({
+                
+                const orderData = {
                     invoiceId,
                     customer: orderForm,
                     items: cart,
                     cartTotal: cartTotalItemsPrice,
                     deliveryFee: cartDeliveryFee,
+                    discountCode: appliedDiscount ? appliedDiscount.code : null,
+                    discountPercentage: appliedDiscount ? appliedDiscount.percentage : 0,
+                    discountAmount: discountAmountVal,
                     total: cartGrandTotal, 
                     date: new Date().toISOString(),
                     status: 'pending'
-                });
+                };
+
+                db.ref('orders').push(orderData);
                 setLastOrderInvoice(invoiceId);
                 setIsCheckoutOpen(false);
                 setIsSuccessOpen(true);
                 setCart([]);
                 setOrderForm({ name: '', phone: '', address: '', notes: '' });
+                setAppliedDiscount(null);
+                setInputCode('');
             };
 
             const searchTerms = search.toLowerCase().trim().split(/\s+/);
@@ -343,8 +383,8 @@
                     deliveryFee: Number(newProduct.deliveryFee || 5000),
                     date: new Date().toISOString()
                 });
-                setNewProduct({ name: '', price: '', costPrice: '', deliveryFee: 5000, imageUrl: '', description: '', category: 'إلكترونيات' });
-                showToast("تمت إضافة المنتج بنجاح");
+                setNewProduct({ name: '', price: '', costPrice: '', deliveryFee: 5000, imageUrl: '', imageUrl2: '', imageUrl3: '', imageUrl4: '', description: '', category: 'إلكترونيات' });
+                showToast("تم إضافة المنتج بنجاح");
             };
 
             const handleAddNotif = (e) => {
@@ -356,57 +396,58 @@
 
             const handleAddSlider = (e) => {
                 e.preventDefault();
-                db.ref('sliders').push(newSlider);
+                db.ref('sliders').push({ ...newSlider, productId: selectedSliderProduct ? selectedSliderProduct.id : '' });
                 setNewSlider({ title: '', imageUrl: '', productId: '' });
                 setSliderProductSearch('');
+                setSelectedSliderProduct(null);
                 showToast("تم إضافة العرض");
             };
 
+            const handleAddDiscount = (e) => {
+                e.preventDefault();
+                db.ref('discounts').push({ code: newDiscount.code.trim().toUpperCase(), percentage: Number(newDiscount.percentage) });
+                setNewDiscount({ code: '', percentage: '' });
+                showToast("تم إضافة الخصم");
+            };
+
             const deleteItem = (path, id) => {
-                if(window.confirm("هل أنت متأكد من إجراء الحذف؟ / دڵنیای لە سڕینەوە؟")) {
-                    db.ref(`${path}/${id}`).remove();
-                }
+                if(window.confirm("هل أنت متأكد؟ / دڵنیای؟")) db.ref(`${path}/${id}`).remove();
             };
 
-            const updateOrderStatus = (id, status) => {
-                db.ref('orders/' + id).update({ status });
-            };
+            const updateOrderStatus = (id, status) => db.ref('orders/' + id).update({ status });
 
-            const handlePrint = (order, type) => {
+            const handlePrint = (order) => {
                 setPrintingOrder(order);
-                setPrintType(type);
                 setTimeout(() => { window.print(); setPrintingOrder(null); }, 500);
             };
 
-            const renderStars = () => (
-                <div className="flex items-center text-amazon-orange text-sm mb-1" dir="ltr">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <svg className="w-4 h-4 fill-gray-300" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span className="text-blue-600 text-xs ml-1 font-normal">(128)</span>
-                </div>
-            );
+            const openProductModal = (p) => {
+                setSelectedProduct(p);
+                setActiveImage(p.imageUrl);
+                setSelectedQty(1);
+            };
 
+            // Order Counters
+            const pendingOrders = orders.filter(o => o.status === 'pending');
             const acceptedOrders = orders.filter(o => o.status === 'accepted');
-            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.cartTotal) || 0), 0);
+            const totalSalesSum = acceptedOrders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
             const totalProfitSum = acceptedOrders.reduce((acc, o) => {
                 let orderProfit = 0;
-                if(o.items && Array.isArray(o.items)) {
+                if(o.items) {
                     o.items.forEach(item => {
-                        const sellingPrice = Number(item.price) || 0;
-                        const costPrice = Number(item.costPrice) || 0; 
-                        orderProfit += (sellingPrice - costPrice) * (item.qty || 1);
+                        const sPrice = Number(item.price) || 0;
+                        const cPrice = Number(item.costPrice) || 0; 
+                        orderProfit += (sPrice - cPrice) * (item.qty || 1);
                     });
                 }
-                return acc + orderProfit;
+                // Subtract discount from profit
+                return acc + (orderProfit - (o.discountAmount || 0));
             }, 0);
 
             return (
                 <div className={`flex flex-col min-h-screen ${lang === 'en' ? 'text-left' : 'text-right'}`} dir={lang === 'en' ? 'ltr' : 'rtl'}>
                     <div id="print-section" className="hidden bg-white p-8">
-                        {printingOrder && printType === 'invoice' && (
+                        {printingOrder && (
                             <div className="max-w-3xl mx-auto border-2 border-gray-800 p-8 rounded-lg" dir="rtl">
                                 <div className="text-center mb-6 border-b-2 border-gray-800 pb-4">
                                     <h1 className="text-4xl font-black mb-2">KESTORE</h1>
@@ -417,100 +458,88 @@
                                     </div>
                                 </div>
                                 <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200 text-right">
-                                    <p className="mb-2"><strong className="text-lg">اسم الزبون:</strong> {printingOrder.customer?.name}</p>
-                                    <p className="mb-2"><strong className="text-lg">الهاتف:</strong> {printingOrder.customer?.phone}</p>
-                                    <p className="mb-2"><strong className="text-lg">العنوان:</strong> {printingOrder.customer?.address}</p>
+                                    <p className="mb-2"><strong>اسم الزبون:</strong> {printingOrder.customer?.name}</p>
+                                    <p className="mb-2"><strong>الهاتف:</strong> {printingOrder.customer?.phone}</p>
+                                    <p className="mb-2"><strong>العنوان:</strong> {printingOrder.customer?.address}</p>
                                 </div>
                                 <table className="w-full text-right border-collapse mb-6 mt-4">
-                                    <thead>
-                                        <tr className="bg-gray-200">
-                                            <th className="border-2 border-gray-800 p-3">المنتج</th>
-                                            <th className="border-2 border-gray-800 p-3 text-center">الكمية</th>
-                                            <th className="border-2 border-gray-800 p-3">السعر</th>
-                                            <th className="border-2 border-gray-800 p-3">المجموع</th>
+                                    <tr className="bg-gray-200">
+                                        <th className="border-2 border-gray-800 p-3">المنتج</th>
+                                        <th className="border-2 border-gray-800 p-3 text-center">الكمية</th>
+                                        <th className="border-2 border-gray-800 p-3">المجموع</th>
+                                    </tr>
+                                    {(printingOrder.items || []).map((item, i) => (
+                                        <tr key={i}>
+                                            <td className="border-2 border-gray-800 p-3 font-bold">{item.name}</td>
+                                            <td className="border-2 border-gray-800 p-3 text-center font-bold">{item.qty || 1}</td>
+                                            <td className="border-2 border-gray-800 p-3 font-bold">{((Number(item.price)||0) * (item.qty||1)).toLocaleString()}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {(printingOrder.items || []).map((item, i) => (
-                                            <tr key={i}>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{item.name}</td>
-                                                <td className="border-2 border-gray-800 p-3 text-center font-bold">{item.qty || 1}</td>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{(Number(item.price)||0).toLocaleString()}</td>
-                                                <td className="border-2 border-gray-800 p-3 font-bold">{((Number(item.price)||0) * (item.qty||1)).toLocaleString()}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
+                                    ))}
                                 </table>
                                 <div className="text-left bg-gray-100 p-4 border-2 border-gray-800 rounded-lg">
-                                    <h3 className="text-xl font-bold mb-2">المجموع: {(printingOrder.cartTotal || printingOrder.total || 0).toLocaleString()} {t.currency}</h3>
-                                    <h3 className="text-xl font-bold mb-2">التوصيل: {(printingOrder.deliveryFee || 0).toLocaleString()} {t.currency}</h3>
-                                    <h2 className="text-3xl font-black mt-4 text-red-600">الكلي: {(printingOrder.total || printingOrder.cartTotal || 0).toLocaleString()} {t.currency}</h2>
+                                    {printingOrder.discountAmount > 0 && (
+                                        <h3 className="text-lg font-bold mb-1 text-red-600">خصم الكود ({printingOrder.discountPercentage}%): -{printingOrder.discountAmount.toLocaleString()}</h3>
+                                    )}
+                                    <h3 className="text-lg font-bold mb-1">التوصيل: {(printingOrder.deliveryFee || 0).toLocaleString()}</h3>
+                                    <h2 className="text-2xl font-black mt-2 text-black">الكلي: {(printingOrder.total || 0).toLocaleString()} {t.currency}</h2>
                                 </div>
                             </div>
                         )}
                     </div>
 
                     {toastMsg && (
-                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[150] bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold animate-slide-up flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[200] bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold animate-slide-up flex items-center gap-2">
                             {toastMsg}
+                        </div>
+                    )}
+
+                    {isFullscreenZoom && activeImage && (
+                        <div className="zoomed-fullscreen" onClick={() => setIsFullscreenZoom(false)}>
+                            <img src={activeImage} alt="Zoomed" onClick={e => e.stopPropagation()} />
+                            <button onClick={() => setIsFullscreenZoom(false)} className="absolute top-6 right-6 bg-red-600 text-white p-3 rounded-full"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                         </div>
                     )}
 
                     <header className="bg-amazon text-white sticky top-0 z-50 no-print">
                         <div className="max-w-[1500px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
-                            <div onClick={handleSecretLogin} className="flex items-center gap-2 cursor-pointer border border-transparent hover:border-white p-1 rounded">
-                                <span className="text-2xl font-black tracking-tighter text-amazon-orange">KE<span className="text-white font-bold">STORE</span></span>
+                            <div onClick={handleSecretLogin} className="flex items-center gap-2 cursor-pointer p-1">
+                                <span className="text-2xl font-black text-amazon-orange">KE<span className="text-white font-bold">STORE</span></span>
                             </div>
 
                             <div className="w-full md:flex-1 order-last md:order-none flex h-11 rounded-md overflow-hidden bg-white group focus-within:ring-4 ring-amazon-orange/50 transition-shadow">
-                                <select className="bg-gray-100 hidden sm:block text-gray-700 px-3 text-sm border-none outline-none border-l border-gray-300 cursor-pointer hover:bg-gray-200 font-bold" dir="rtl">
-                                    {CATEGORIES.map(c=><option key={c} value={c}>{c === 'الكل' ? (lang==='ku'?'هەمووی':(lang==='en'?'All':'الكل')) : c}</option>)}
+                                <select className="bg-gray-100 hidden sm:block text-gray-700 px-3 text-sm border-none outline-none font-bold" dir="rtl">
+                                    {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
                                 </select>
-                                <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none w-full" dir={lang==='en'?'ltr':'rtl'} />
-                                <button className="bg-amazon-yellow hover:bg-amazon-orange text-black px-6 transition-colors flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                                </button>
+                                <input type="text" placeholder={t.search} value={search} onChange={(e)=>setSearch(e.target.value)} className="flex-1 px-4 text-black outline-none" dir={lang==='en'?'ltr':'rtl'} />
+                                <button className="bg-amazon-yellow text-black px-6"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
                             </div>
 
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <button onClick={() => setIsContactOpen(true)} className="flex items-center gap-1 font-bold text-sm hover:text-green-400 border border-transparent hover:border-white p-2 rounded" title={t.contactUs}>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                </button>
-                                <button onClick={changeLanguage} className="flex items-center gap-1 font-bold text-sm hover:text-gray-300 border border-transparent hover:border-white p-2 rounded">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                                    {t.langLabel}
-                                </button>
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <button onClick={() => setIsContactOpen(true)} title={t.contactUs}><svg className="w-5 h-5 hover:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></button>
+                                <button onClick={changeLanguage} className="font-bold text-sm hover:text-gray-300">{t.langLabel}</button>
                                 {isAdmin && (
                                     <div className="flex items-center gap-2">
-                                        <span onClick={() => setPage(page === 'admin' ? 'home' : 'admin')} className="text-amazon-orange hover:text-white cursor-pointer ml-1" title={t.adminTitle}>
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                        </span>
-                                        <button onClick={() => { setIsAdmin(false); setPage('home'); }} className="text-xs text-red-400 hover:text-red-300 font-bold p-1 border border-transparent hover:border-white rounded">{t.logout}</button>
+                                        <span onClick={() => setPage(page === 'admin' ? 'home' : 'admin')} className="text-amazon-orange hover:text-white cursor-pointer"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
+                                        <button onClick={() => { setIsAdmin(false); setPage('home'); }} className="text-xs text-red-400 font-bold">{t.logout}</button>
                                     </div>
                                 )}
-                                <div className="relative flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded" onClick={() => setIsNotifOpen(true)}>
-                                    <div className="relative">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                                        {notifications.length > 0 && <span className="absolute top-0 right-0 bg-red-500 w-3 h-3 rounded-full border-2 border-amazon animate-pulse"></span>}
-                                    </div>
+                                <div className="relative cursor-pointer" onClick={() => setIsNotifOpen(true)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                                    {notifications.length > 0 && <span className="absolute top-0 right-0 bg-red-500 w-3 h-3 rounded-full animate-pulse"></span>}
                                 </div>
-                                <div className="relative flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded" onClick={() => setIsCartOpen(true)}>
+                                <div className="relative flex items-center cursor-pointer" onClick={() => setIsCartOpen(true)}>
                                     <div className="relative">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                                         <span className="absolute top-1 left-1/2 transform -translate-x-1/2 text-amazon-orange font-bold text-sm bg-amazon w-6 h-5 text-center flex justify-center items-center rounded-full mt-1">
                                             {cart.reduce((a,c)=>a+c.qty,0)}
                                         </span>
                                     </div>
-                                    <span className="font-bold hidden sm:block mt-auto text-sm mx-1">{t.cart}</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-amazon-light text-white text-sm px-4 py-2 overflow-x-auto hide-scroll flex gap-4 whitespace-nowrap shadow-md">
+                        <div className="bg-amazon-light px-4 py-2 overflow-x-auto hide-scroll flex gap-4 whitespace-nowrap text-sm">
                             {CATEGORIES.map(cat => (
-                                <button key={cat} onClick={() => {setActiveCat(cat); setPage('home');}} className={`hover:border-white border border-transparent px-2 py-0.5 rounded transition-colors ${activeCat === cat ? 'font-black text-amazon-yellow bg-white/10' : ''}`}>
-                                    {cat === 'الكل' ? (lang === 'ku' ? 'هەمووی' : (lang === 'en' ? 'All' : 'الكل')) : cat}
-                                </button>
+                                <button key={cat} onClick={() => {setActiveCat(cat); setPage('home');}} className={`px-2 py-0.5 rounded transition ${activeCat === cat ? 'font-black text-amazon-yellow bg-white/10' : ''}`}>{cat}</button>
                             ))}
                         </div>
                     </header>
@@ -519,24 +548,19 @@
                         {page === 'home' ? (
                             <div className="relative">
                                 <div className="w-full h-[300px] sm:h-[400px] bg-gradient-to-r from-amazon-light to-blue-900 relative mb-12">
-                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
+                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-gray-100 to-transparent"></div>
-                                    <div className="relative z-10 px-6 pt-16 sm:pt-32 text-white max-w-xl mx-auto text-center drop-shadow-2xl">
+                                    <div className="relative z-10 px-6 pt-16 sm:pt-32 text-white text-center drop-shadow-2xl">
                                         <h1 className="text-4xl sm:text-6xl font-black mb-4">{t.welcome} <span className="text-amazon-yellow">KESTORE</span></h1>
-                                        <p className="text-lg sm:text-xl font-bold bg-black/40 inline-block px-5 py-2 rounded-full backdrop-blur-sm border border-white/20">{t.sub}</p>
+                                        <p className="text-lg font-bold bg-black/40 inline-block px-5 py-2 rounded-full">{t.sub}</p>
                                     </div>
                                 </div>
 
                                 <div className="px-4 -mt-20 sm:-mt-28 relative z-20">
                                     {sliders.length > 0 && (
                                         <div className="mb-8 overflow-x-auto hide-scroll flex gap-4 snap-x snap-mandatory py-2">
-                                            {sliders.map((s, idx) => (
-                                                <div key={s.id} onClick={() => {
-                                                    if(s.productId) {
-                                                        const p = products.find(x => x.id === s.productId);
-                                                        if(p) setSelectedProduct(p);
-                                                    }
-                                                }} className="min-w-[280px] sm:min-w-[400px] h-[160px] sm:h-[200px] flex-shrink-0 bg-white rounded-xl shadow-lg snap-center relative overflow-hidden border-2 border-white group cursor-pointer hover:shadow-xl transition-all">
+                                            {sliders.map(s => (
+                                                <div key={s.id} onClick={() => { if(s.productId) { const p = products.find(x => x.id === s.productId); if(p) openProductModal(p); } }} className="min-w-[280px] sm:min-w-[400px] h-[160px] sm:h-[200px] bg-white rounded-xl shadow-lg snap-center relative overflow-hidden group cursor-pointer border-2 border-white">
                                                     <img src={s.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                                     {s.title && <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white font-bold text-lg pt-10">{s.title}</div>}
                                                     <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">Offer</div>
@@ -547,25 +571,17 @@
 
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
                                         {filteredProducts.map(p => (
-                                            <div key={p.id} onClick={() => setSelectedProduct(p)} className="product-card bg-white cursor-pointer rounded-xl overflow-hidden flex flex-col group relative shadow-sm">
+                                            <div key={p.id} onClick={() => openProductModal(p)} className="product-card bg-white cursor-pointer rounded-xl overflow-hidden flex flex-col group relative shadow-sm">
                                                 <div className="w-full h-[200px] sm:h-[240px] relative bg-white flex items-center justify-center overflow-hidden border-b border-gray-100">
-                                                    {isNew(p.date) && (
-                                                        <div className="absolute top-2 right-2 z-10 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm animate-bounce">
-                                                            {t.newItem}
-                                                        </div>
-                                                    )}
+                                                    {isNew(p.date) && <div className="absolute top-2 right-2 z-10 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm animate-bounce">{t.newItem}</div>}
                                                     <img src={p.imageUrl} className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500" />
                                                 </div>
-                                                <div className="p-4 flex-1 flex flex-col bg-white">
-                                                    <span className="text-xs text-gray-400 mb-1">{p.sku || '---'}</span>
-                                                    <h3 className="font-bold text-sm sm:text-base text-gray-900 mb-2 line-clamp-2 group-hover:text-amazon-orange transition-colors h-10 sm:h-12">{p.name || '---'}</h3>
-                                                    {renderStars()}
-                                                    <div className="mt-2 mb-3">
-                                                        <span className="text-lg sm:text-2xl font-black text-gray-900">{(Number(p.price)||0).toLocaleString()} <small className="text-[10px]">{t.currency}</small></span>
+                                                <div className="p-4 flex-1 flex flex-col">
+                                                    <h3 className="font-bold text-sm sm:text-base text-gray-900 mb-2 line-clamp-2">{p.name || '---'}</h3>
+                                                    <div className="mt-auto mb-3">
+                                                        <span className="text-lg sm:text-xl font-black text-gray-900">{(Number(p.price)||0).toLocaleString()} <small className="text-[10px]">{t.currency}</small></span>
                                                     </div>
-                                                    <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="mt-auto w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-bold py-2 rounded-lg transition-colors shadow-md text-sm">
-                                                        {t.addCart}
-                                                    </button>
+                                                    <button onClick={(e) => { e.stopPropagation(); addToCart(p); }} className="w-full bg-amazon-yellow hover:bg-amazon-orange text-black font-bold py-2 rounded-lg text-sm transition-colors">{t.addCart}</button>
                                                 </div>
                                             </div>
                                         ))}
@@ -576,27 +592,34 @@
                             <div className="p-4 sm:p-8">
                                 <h2 className="text-3xl font-black mb-6 border-b pb-4">{t.adminTitle}</h2>
                                 <div className="flex gap-2 mb-6 overflow-x-auto hide-scroll pb-2">
-                                    <button onClick={()=>setAdminTab('orders')} className={`px-6 py-2 rounded-full font-bold transition-colors whitespace-nowrap border ${adminTab==='orders'?'bg-amazon-orange text-white border-amazon-orange':'bg-white text-gray-700 border-gray-300'}`}>{t.orders}</button>
-                                    <button onClick={()=>setAdminTab('products')} className={`px-6 py-2 rounded-full font-bold transition-colors whitespace-nowrap border ${adminTab==='products'?'bg-amazon-orange text-white border-amazon-orange':'bg-white text-gray-700 border-gray-300'}`}>{t.products}</button>
-                                    <button onClick={()=>setAdminTab('notifications')} className={`px-6 py-2 rounded-full font-bold transition-colors whitespace-nowrap border ${adminTab==='notifications'?'bg-amazon-orange text-white border-amazon-orange':'bg-white text-gray-700 border-gray-300'}`}>{t.notifications}</button>
-                                    <button onClick={()=>setAdminTab('slider')} className={`px-6 py-2 rounded-full font-bold transition-colors whitespace-nowrap border ${adminTab==='slider'?'bg-amazon-orange text-white border-amazon-orange':'bg-white text-gray-700 border-gray-300'}`}>{t.slider}</button>
+                                    {['orders', 'products', 'notifications', 'slider', 'discounts'].map(tab => (
+                                        <button key={tab} onClick={()=>setAdminTab(tab)} className={`px-6 py-2 rounded-full font-bold transition-colors whitespace-nowrap border ${adminTab===tab?'bg-amazon-orange text-white border-amazon-orange':'bg-white text-gray-700'}`}>{t[tab]}</button>
+                                    ))}
                                 </div>
 
                                 {adminTab === 'orders' && (
                                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 border-b pb-6">
-                                            <div className="bg-green-50 p-4 rounded-lg text-center border border-green-100">
-                                                <p className="text-xs font-bold text-green-700">{t.totalSales}</p>
+                                            <div className="bg-yellow-50 p-4 rounded-lg text-center border border-yellow-200">
+                                                <p className="text-xs font-bold text-yellow-700">{t.pendingCount}</p>
+                                                <p className="text-2xl font-black">{pendingOrders.length}</p>
+                                            </div>
+                                            <div className="bg-green-50 p-4 rounded-lg text-center border border-green-200">
+                                                <p className="text-xs font-bold text-green-700">{t.acceptedCount}</p>
+                                                <p className="text-2xl font-black">{acceptedOrders.length}</p>
+                                            </div>
+                                            <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-200">
+                                                <p className="text-xs font-bold text-blue-700">{t.totalSales}</p>
                                                 <p className="text-lg font-black">{totalSalesSum.toLocaleString()}</p>
                                             </div>
-                                            <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-100">
-                                                <p className="text-xs font-bold text-blue-700">{t.profit}</p>
+                                            <div className="bg-purple-50 p-4 rounded-lg text-center border border-purple-200">
+                                                <p className="text-xs font-bold text-purple-700">{t.profit}</p>
                                                 <p className="text-lg font-black">{totalProfitSum.toLocaleString()}</p>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            {orders.map((order, index) => (
-                                                <div key={order.id} className={`border rounded-xl p-4 ${order.status === 'pending' ? 'bg-yellow-50' : ''}`}>
+                                            {orders.map((order) => (
+                                                <div key={order.id} className={`border rounded-xl p-4 ${order.status === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50'}`}>
                                                     <div className="flex justify-between items-center mb-3">
                                                         <span className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold">{order.invoiceId}</span>
                                                         <span className="text-sm font-bold">{(order.total || 0).toLocaleString()} {t.currency}</span>
@@ -604,6 +627,9 @@
                                                     <div className="text-sm mb-3">
                                                         <p><strong>{order.customer?.name}</strong> | {order.customer?.phone}</p>
                                                         <p className="text-gray-500">{order.customer?.address}</p>
+                                                        {order.discountAmount > 0 && (
+                                                            <p className="text-red-600 font-bold mt-1 text-xs">كود الخصم: {order.discountCode} ({order.discountPercentage}%) - وفر: {order.discountAmount.toLocaleString()}</p>
+                                                        )}
                                                     </div>
                                                     <div className="flex gap-2">
                                                         {order.status === 'pending' && (
@@ -612,7 +638,7 @@
                                                                 <button onClick={()=>updateOrderStatus(order.id, 'rejected')} className="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold">{t.reject}</button>
                                                             </>
                                                         )}
-                                                        <button onClick={()=>handlePrint(order, 'invoice')} className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">{t.printInvoice}</button>
+                                                        <button onClick={()=>handlePrint(order)} className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">{t.printInvoice}</button>
                                                         <button onClick={()=>deleteItem('orders', order.id)} className="text-red-500 text-xs font-bold mr-auto">{t.delete}</button>
                                                     </div>
                                                 </div>
@@ -626,10 +652,16 @@
                                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit">
                                             <h3 className="text-xl font-bold mb-4">{t.addProduct}</h3>
                                             <form onSubmit={handleAddProduct} className="space-y-3">
-                                                <input required type="text" placeholder={t.pName} value={newProduct.name} onChange={e=>setNewProduct({...newProduct, name: e.target.value})} className="w-full border p-3 rounded-lg outline-none focus:border-amazon-orange" />
-                                                <input required type="number" placeholder={t.pPrice} value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
-                                                <input required type="number" placeholder={t.pCost} value={newProduct.costPrice} onChange={e=>setNewProduct({...newProduct, costPrice: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
+                                                <input required type="text" placeholder={t.pName} value={newProduct.name} onChange={e=>setNewProduct({...newProduct, name: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
+                                                <div className="flex gap-2">
+                                                    <input required type="number" placeholder={t.pPrice} value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
+                                                    <input required type="number" placeholder={t.pCost} value={newProduct.costPrice} onChange={e=>setNewProduct({...newProduct, costPrice: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
+                                                </div>
                                                 <input required type="text" placeholder={t.pImg} value={newProduct.imageUrl} onChange={e=>setNewProduct({...newProduct, imageUrl: e.target.value})} className="w-full border p-3 rounded-lg outline-none" dir="ltr" />
+                                                <input type="text" placeholder={t.pImg2} value={newProduct.imageUrl2} onChange={e=>setNewProduct({...newProduct, imageUrl2: e.target.value})} className="w-full border p-2 rounded-lg outline-none text-sm" dir="ltr" />
+                                                <input type="text" placeholder={t.pImg3} value={newProduct.imageUrl3} onChange={e=>setNewProduct({...newProduct, imageUrl3: e.target.value})} className="w-full border p-2 rounded-lg outline-none text-sm" dir="ltr" />
+                                                <input type="text" placeholder={t.pImg4} value={newProduct.imageUrl4} onChange={e=>setNewProduct({...newProduct, imageUrl4: e.target.value})} className="w-full border p-2 rounded-lg outline-none text-sm" dir="ltr" />
+                                                
                                                 <select value={newProduct.category} onChange={e=>setNewProduct({...newProduct, category: e.target.value})} className="w-full border p-3 rounded-lg outline-none">
                                                     {CATEGORIES.filter(c=>c!=='الكل').map(c=><option key={c} value={c}>{c}</option>)}
                                                 </select>
@@ -649,9 +681,7 @@
                                                                 <span className="text-amazon-orange font-bold text-xs">{p.price}</span>
                                                             </div>
                                                         </div>
-                                                        <button onClick={()=>deleteItem('products', p.id)} className="text-red-500">
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                        </button>
+                                                        <button onClick={()=>deleteItem('products', p.id)} className="text-red-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                     </div>
                                                 ))}
                                             </div>
@@ -663,30 +693,34 @@
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                             <h3 className="text-xl font-bold mb-4">{t.addOffer}</h3>
-                                            <form onSubmit={handleAddSlider} className="space-y-4">
+                                            <form onSubmit={handleAddSlider} className="space-y-4 relative">
                                                 <input type="text" placeholder={t.offerTitle} value={newSlider.title} onChange={e=>setNewSlider({...newSlider, title: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
                                                 <input required type="text" placeholder={t.pImg} value={newSlider.imageUrl} onChange={e=>setNewSlider({...newSlider, imageUrl: e.target.value})} className="w-full border p-3 rounded-lg outline-none" dir="ltr" />
                                                 
-                                                <div className="relative">
-                                                    <label className="block text-xs font-bold text-gray-500 mb-1">{t.searchItem}</label>
-                                                    <input type="text" placeholder={t.search} value={sliderProductSearch} onChange={e=>setSliderProductSearch(e.target.value)} className="w-full border p-3 rounded-lg outline-none focus:border-purple-500" />
-                                                    {sliderProductSearch && (
-                                                        <div className="absolute z-10 w-full bg-white border mt-1 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-                                                            <div onClick={()=>{setNewSlider({...newSlider, productId: ''}); setSliderProductSearch('');}} className="p-2 hover:bg-gray-100 cursor-pointer text-sm font-bold border-b text-red-500">بێ بەستەرەوە / بدون رابط</div>
-                                                            {products.filter(p=>(p.name || '').toLowerCase().includes(sliderProductSearch.toLowerCase())).map(p=>(
-                                                                <div key={p.id} onClick={()=>{
-                                                                    setNewSlider({...newSlider, productId: p.id});
-                                                                    setSliderProductSearch(p.name);
-                                                                }} className="p-2 hover:bg-gray-100 cursor-pointer text-xs flex items-center gap-2 border-b">
-                                                                    <img src={p.imageUrl} className="w-6 h-6 object-contain" />
-                                                                    <span>{p.name}</span>
+                                                <div className="relative border p-3 rounded-lg bg-gray-50">
+                                                    <label className="block text-xs font-bold text-gray-500 mb-2">{t.searchItem}</label>
+                                                    
+                                                    {selectedSliderProduct ? (
+                                                        <div className="flex justify-between items-center bg-blue-100 p-2 rounded-lg border border-blue-200">
+                                                            <span className="text-sm font-bold text-blue-800">{t.selectedItem} {selectedSliderProduct.name}</span>
+                                                            <button type="button" onClick={() => setSelectedSliderProduct(null)} className="text-red-500 font-bold text-xs">إلغاء</button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="relative">
+                                                            <input type="text" placeholder={t.search} value={sliderProductSearch} onChange={e=>setSliderProductSearch(e.target.value)} className="w-full border p-2 rounded-lg outline-none focus:border-purple-500 bg-white" />
+                                                            {sliderProductSearch && (
+                                                                <div className="absolute z-50 w-full bg-white border mt-1 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                                                                    {products.filter(p=>(p.name || '').toLowerCase().includes(sliderProductSearch.toLowerCase())).map(p=>(
+                                                                        <div key={p.id} onClick={()=>{ setSelectedSliderProduct(p); setSliderProductSearch(''); }} className="p-2 hover:bg-gray-100 cursor-pointer text-xs flex items-center gap-2 border-b">
+                                                                            <img src={p.imageUrl} className="w-8 h-8 object-contain" /><span>{p.name}</span>
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
-                                                            ))}
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
-
-                                                <button type="submit" className="w-full bg-purple-600 text-white font-bold py-3 rounded-lg">إضافة العرض</button>
+                                                <button type="submit" className="w-full bg-purple-600 text-white font-bold py-3 rounded-lg mt-4">{t.addOffer}</button>
                                             </form>
                                         </div>
                                         <div className="space-y-4">
@@ -697,9 +731,56 @@
                                                         <div className="font-bold text-xs">{s.title || 'No Title'}</div>
                                                         {s.productId && <div className="text-[10px] text-blue-600 font-bold">Linked to Item</div>}
                                                     </div>
-                                                    <button onClick={()=>deleteItem('sliders', s.id)} className="text-red-500">
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                    </button>
+                                                    <button onClick={()=>deleteItem('sliders', s.id)} className="text-red-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {adminTab === 'notifications' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                            <h3 className="text-xl font-bold mb-4">{t.sendNotif}</h3>
+                                            <form onSubmit={handleAddNotif} className="space-y-4">
+                                                <input required type="text" placeholder={t.notifTitle} value={newNotif.title} onChange={e=>setNewNotif({...newNotif, title: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
+                                                <textarea required placeholder={t.notifMsg} value={newNotif.message} onChange={e=>setNewNotif({...newNotif, message: e.target.value})} className="w-full border p-3 rounded-lg outline-none" rows="3"></textarea>
+                                                <input type="text" placeholder={t.notifImg} value={newNotif.imageUrl} onChange={e=>setNewNotif({...newNotif, imageUrl: e.target.value})} className="w-full border p-3 rounded-lg outline-none" dir="ltr" />
+                                                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg">{t.sendNotif}</button>
+                                            </form>
+                                        </div>
+                                        <div className="space-y-4">
+                                            {notifications.map(n => (
+                                                <div key={n.id} className="bg-white p-4 rounded-xl shadow-sm border-r-4 border-r-blue-500 flex justify-between items-start">
+                                                    <div>
+                                                        <h4 className="font-bold text-sm mb-1">{n.title}</h4>
+                                                        <p className="text-gray-600 text-xs">{n.message}</p>
+                                                    </div>
+                                                    <button onClick={()=>deleteItem('KESTOREnotification', n.id)} className="text-red-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {adminTab === 'discounts' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                            <h3 className="text-xl font-bold mb-4">{t.discountCodeTitle}</h3>
+                                            <form onSubmit={handleAddDiscount} className="space-y-4">
+                                                <input required type="text" placeholder={t.discountCode} value={newDiscount.code} onChange={e=>setNewDiscount({...newDiscount, code: e.target.value})} className="w-full border p-3 rounded-lg outline-none uppercase font-bold text-center tracking-widest" dir="ltr" />
+                                                <input required type="number" placeholder={t.discountPercent} min="1" max="100" value={newDiscount.percentage} onChange={e=>setNewDiscount({...newDiscount, percentage: e.target.value})} className="w-full border p-3 rounded-lg outline-none text-center font-bold text-red-600" dir="ltr" />
+                                                <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 rounded-lg">{t.addDiscount}</button>
+                                            </form>
+                                        </div>
+                                        <div className="space-y-4">
+                                            {discounts.map(d => (
+                                                <div key={d.id} className="border border-red-200 bg-red-50 p-4 rounded-xl flex items-center justify-between">
+                                                    <div>
+                                                        <div className="font-black text-lg tracking-widest">{d.code}</div>
+                                                        <div className="text-sm font-bold text-red-600">خصم {d.percentage}%</div>
+                                                    </div>
+                                                    <button onClick={()=>deleteItem('discounts', d.id)} className="text-red-500 bg-white p-2 rounded-full shadow-sm"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                 </div>
                                             ))}
                                         </div>
@@ -709,35 +790,40 @@
                         ) : null}
                     </main>
 
+                    {/* Product Details Modal */}
                     {selectedProduct && (
                         <div className="fixed inset-0 bg-black/80 z-[100] flex justify-center items-center p-4 md:p-8 animate-fade-in" onClick={() => setSelectedProduct(null)}>
-                            <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                            <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[95vh] overflow-y-auto flex flex-col md:flex-row shadow-2xl relative" onClick={e => e.stopPropagation()}>
                                 <div className="absolute top-4 right-4 z-10 flex gap-2">
-                                    <button onClick={() => handleShare(selectedProduct.id)} className="bg-blue-100 text-blue-800 rounded-full p-2 transition-colors">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                                    </button>
-                                    <button onClick={() => setSelectedProduct(null)} className="bg-gray-100 text-gray-800 rounded-full p-2">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
+                                    <button onClick={() => handleShare(selectedProduct.id)} className="bg-blue-100 text-blue-800 rounded-full p-2 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg></button>
+                                    <button onClick={() => setSelectedProduct(null)} className="bg-gray-200 text-gray-800 rounded-full p-2"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                                 </div>
-                                <div className="md:w-1/2 p-4 flex items-center justify-center bg-gray-50 border-b md:border-b-0 md:border-l border-gray-200 pt-14 md:pt-4 overflow-hidden">
-                                    <img src={selectedProduct.imageUrl} className="max-w-full max-h-[40vh] md:max-h-[60vh] object-contain rounded-lg zoom-img" title="Zoom" />
+                                
+                                <div className="md:w-1/2 p-4 bg-gray-50 border-b md:border-b-0 md:border-l border-gray-200 flex flex-col items-center pt-14 md:pt-6">
+                                    <div className="w-full h-[40vh] md:h-[60vh] bg-white rounded-xl border border-gray-200 flex items-center justify-center zoom-container mb-4" onClick={() => setIsFullscreenZoom(true)}>
+                                        <img src={activeImage} className="zoom-img" alt="Product" />
+                                    </div>
+                                    <div className="flex gap-2 w-full overflow-x-auto hide-scroll justify-center">
+                                        {[selectedProduct.imageUrl, selectedProduct.imageUrl2, selectedProduct.imageUrl3, selectedProduct.imageUrl4].filter(Boolean).map((img, idx) => (
+                                            <img key={idx} src={img} onClick={() => setActiveImage(img)} className={`w-16 h-16 object-contain bg-white border-2 rounded-lg cursor-pointer transition-all ${activeImage === img ? 'border-amazon-orange scale-105' : 'border-gray-200 opacity-60 hover:opacity-100'}`} />
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="md:w-1/2 p-6 md:p-8 flex flex-col pt-4 md:pt-8">
+                                
+                                <div className="md:w-1/2 p-6 md:p-8 flex flex-col">
                                     <span className="text-xs text-gray-400 mb-2">{selectedProduct.category} • {selectedProduct.sku}</span>
-                                    <h2 className="text-xl md:text-2xl font-black mb-4 text-gray-900">{selectedProduct.name}</h2>
-                                    {renderStars()}
+                                    <h2 className="text-2xl md:text-3xl font-black mb-4 text-gray-900 leading-tight">{selectedProduct.name}</h2>
                                     <div className="text-3xl font-black text-amazon-orange my-4">{(Number(selectedProduct.price)||0).toLocaleString()} {t.currency}</div>
                                     <div className="bg-gray-50 p-4 rounded-xl mb-6 flex-1 overflow-y-auto border border-gray-100">
-                                        <p className="whitespace-pre-wrap text-gray-600 leading-relaxed text-sm">{selectedProduct.description || 'No description available.'}</p>
+                                        <p className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm">{selectedProduct.description || 'No description available.'}</p>
                                     </div>
-                                    <div className="flex gap-3 items-center">
+                                    <div className="flex gap-3 items-center mt-auto">
                                         <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-2 border border-gray-200">
-                                            <button onClick={() => setSelectedQty(Math.max(1, selectedQty - 1))} className="w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-sm text-xl font-bold">-</button>
-                                            <span className="font-black text-lg w-6 text-center">{selectedQty}</span>
-                                            <button onClick={() => setSelectedQty(selectedQty + 1)} className="w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-sm text-xl font-bold">+</button>
+                                            <button onClick={() => setSelectedQty(Math.max(1, selectedQty - 1))} className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm text-xl font-bold">-</button>
+                                            <span className="font-black text-xl w-8 text-center">{selectedQty}</span>
+                                            <button onClick={() => setSelectedQty(selectedQty + 1)} className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm text-xl font-bold">+</button>
                                         </div>
-                                        <button onClick={() => { addToCart(selectedProduct, selectedQty); setSelectedProduct(null); }} className="flex-1 h-14 bg-amazon-yellow hover:bg-amazon-orange text-black font-bold rounded-xl text-lg flex justify-center items-center gap-2">
+                                        <button onClick={() => { addToCart(selectedProduct, selectedQty); setSelectedProduct(null); }} className="flex-1 h-16 bg-amazon-yellow hover:bg-amazon-orange text-black font-black rounded-xl text-lg transition-colors shadow-md">
                                             {t.addCart}
                                         </button>
                                     </div>
@@ -746,6 +832,7 @@
                         </div>
                     )}
 
+                    {/* Cart Modal */}
                     {isCartOpen && (
                         <div className="fixed inset-0 bg-black/70 z-[110] flex justify-center items-center p-4" onClick={() => setIsCartOpen(false)}>
                             <div className="bg-white rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
@@ -786,22 +873,42 @@
                         </div>
                     )}
 
+                    {/* Checkout Modal */}
                     {isCheckoutOpen && (
                         <div className="fixed inset-0 bg-black/70 z-[110] flex justify-center items-center p-4" onClick={() => setIsCheckoutOpen(false)}>
                             <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col" onClick={e => e.stopPropagation()}>
-                                <div className="p-4 border-b flex justify-between items-center bg-amazon text-white rounded-t-2xl">
+                                <div className="p-4 border-b flex justify-between items-center bg-amazon text-white rounded-t-2xl sticky top-0 z-10">
                                     <h2 className="text-xl font-bold">{t.checkoutTitle}</h2>
                                     <button onClick={() => setIsCheckoutOpen(false)}><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                                 </div>
                                 <div className="p-6">
                                     <form onSubmit={handleOrderSubmit} className="space-y-4">
-                                        <input required placeholder={t.cName} value={orderForm.name} onChange={e => setOrderForm({...orderForm, name: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
-                                        <input required type="tel" placeholder={t.cPhone} value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full border p-3 rounded-lg outline-none" dir="ltr" />
-                                        <input required placeholder={t.cAddress} value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} className="w-full border p-3 rounded-lg outline-none" />
-                                        <textarea placeholder={t.cNotes} value={orderForm.notes} onChange={e => setOrderForm({...orderForm, notes: e.target.value})} className="w-full border p-3 rounded-lg outline-none" rows="2"></textarea>
+                                        <input required placeholder={t.cName} value={orderForm.name} onChange={e => setOrderForm({...orderForm, name: e.target.value})} className="w-full border p-3 rounded-lg outline-none bg-gray-50 focus:bg-white" />
+                                        <input required type="tel" placeholder={t.cPhone} value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full border p-3 rounded-lg outline-none bg-gray-50 focus:bg-white" dir="ltr" />
+                                        <input required placeholder={t.cAddress} value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} className="w-full border p-3 rounded-lg outline-none bg-gray-50 focus:bg-white" />
+                                        <textarea placeholder={t.cNotes} value={orderForm.notes} onChange={e => setOrderForm({...orderForm, notes: e.target.value})} className="w-full border p-3 rounded-lg outline-none bg-gray-50 focus:bg-white" rows="2"></textarea>
+                                        
+                                        {/* Discount System UI */}
+                                        <div className="border border-red-200 bg-red-50 p-4 rounded-xl">
+                                            <label className="block text-sm font-bold text-red-800 mb-2">{t.haveDiscount}</label>
+                                            <div className="flex gap-2">
+                                                <input type="text" placeholder={t.discountCode} value={inputCode} onChange={e => setInputCode(e.target.value)} className="flex-1 border p-2 rounded-lg outline-none uppercase font-bold text-center" dir="ltr" disabled={!!appliedDiscount} />
+                                                {!appliedDiscount ? (
+                                                    <button type="button" onClick={applyDiscountCode} className="bg-red-600 text-white px-4 font-bold rounded-lg text-sm">{t.applyDiscount}</button>
+                                                ) : (
+                                                    <button type="button" onClick={() => {setAppliedDiscount(null); setInputCode('');}} className="bg-gray-400 text-white px-4 font-bold rounded-lg text-sm">إلغاء</button>
+                                                )}
+                                            </div>
+                                            {appliedDiscount && <p className="text-green-600 text-xs font-bold mt-2 text-center">{t.discountApplied} {appliedDiscount.percentage}%</p>}
+                                        </div>
+
                                         <div className="bg-gray-100 p-4 rounded-xl text-sm">
-                                            <div className="flex justify-between mb-1"><span>{t.total}:</span><span className="font-bold">{cartTotalItemsPrice.toLocaleString()} {t.currency}</span></div>
-                                            <div className="flex justify-between border-t pt-2 text-red-600 font-black text-lg"><span>Total:</span><span>{cartGrandTotal.toLocaleString()} {t.currency}</span></div>
+                                            <div className="flex justify-between mb-2"><span>{t.total}:</span><span className="font-bold">{cartTotalItemsPrice.toLocaleString()} {t.currency}</span></div>
+                                            <div className="flex justify-between mb-2"><span>{t.deliveryFeeInput}:</span><span className="font-bold">{cartDeliveryFee.toLocaleString()} {t.currency}</span></div>
+                                            {appliedDiscount && (
+                                                <div className="flex justify-between mb-2 text-red-600 font-bold"><span>{t.discountAmount}:</span><span>- {discountAmountVal.toLocaleString()} {t.currency}</span></div>
+                                            )}
+                                            <div className="flex justify-between border-t border-gray-300 pt-3 text-amazon-orange font-black text-xl"><span>Total:</span><span>{cartGrandTotal.toLocaleString()} {t.currency}</span></div>
                                         </div>
                                         <button type="submit" className="w-full bg-amazon-orange text-white py-4 rounded-xl font-black text-lg shadow-lg">
                                             {t.confirmOrder}
@@ -812,12 +919,11 @@
                         </div>
                     )}
 
+                    {/* Success Modal */}
                     {isSuccessOpen && (
                         <div className="fixed inset-0 bg-black/80 z-[120] flex justify-center items-center p-4" onClick={() => setIsSuccessOpen(false)}>
                             <div className="bg-white rounded-2xl p-8 text-center max-w-sm w-full animate-pop">
-                                <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
+                                <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"><svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg></div>
                                 <h2 className="text-2xl font-black mb-3">{t.successMsg}</h2>
                                 <p className="text-gray-600 mb-6 font-bold">{t.successSub}</p>
                                 <div className="bg-gray-100 p-3 rounded-lg mb-6 border-2 border-dashed">
@@ -829,6 +935,7 @@
                         </div>
                     )}
 
+                    {/* Contact Modal */}
                     {isContactOpen && (
                         <div className="fixed inset-0 bg-black/70 z-[120] flex justify-center items-center p-4 no-print" onClick={()=>setIsContactOpen(false)}>
                             <div className="bg-white rounded-2xl w-full max-w-sm text-center p-6 animate-pop" onClick={e=>e.stopPropagation()}>
@@ -839,6 +946,7 @@
                         </div>
                     )}
 
+                    {/* Notifications Modal */}
                     {isNotifOpen && (
                         <div className="fixed inset-0 bg-black/70 z-[110] flex justify-center items-start pt-20 px-4 no-print" onClick={()=>setIsNotifOpen(false)}>
                             <div className="bg-white rounded-2xl w-full max-w-md max-h-[70vh] overflow-hidden flex flex-col" onClick={e=>e.stopPropagation()}>
@@ -851,7 +959,8 @@
                                         notifications.map(n => (
                                             <div key={n.id} className="bg-white p-4 rounded-xl shadow-sm border-r-4 border-r-blue-500">
                                                 <h4 className="font-bold text-sm mb-1">{n.title}</h4>
-                                                <p className="text-gray-700 text-xs">{n.message}</p>
+                                                <p className="text-gray-700 text-xs mb-2">{n.message}</p>
+                                                {n.imageUrl && <img src={n.imageUrl} className="w-full h-32 object-cover rounded-lg" />}
                                             </div>
                                         ))
                                     }
